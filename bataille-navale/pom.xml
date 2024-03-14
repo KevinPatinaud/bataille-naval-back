@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">am
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -8,21 +8,24 @@
         <version>3.2.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-	
+
     <groupId>com.patinaud</groupId>
     <artifactId>bataille-navale</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>bataille-navale</name>
     <description>bataille-navale</description>
+    <packaging>pom</packaging>
     <properties>
         <java.version>17</java.version>
     </properties>
-	
-	<modules>
+
+    <modules>
         <module>bataille-api</module>
+        <module>bataille-service</module>
+        <module>bataille-model</module>
     </modules>
-	
-	
+
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
