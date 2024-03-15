@@ -7,6 +7,8 @@ public class Cell {
     private int y;
     private CellContent cellContent;
 
+    private boolean isRevealed;
+
     public int getX() {
         return x;
     }
@@ -29,5 +31,13 @@ public class Cell {
 
     public void setCellContent(CellContent cellContent) {
         this.cellContent = cellContent;
+    }
+
+    public boolean isRevealed() {
+        return isRevealed;
+    }
+
+    public void setRevealed(boolean revealed) {
+        isRevealed = revealed;
     }
 }

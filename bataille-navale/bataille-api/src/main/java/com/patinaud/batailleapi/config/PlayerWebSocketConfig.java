@@ -11,10 +11,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class PlayerWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/batailleNavale")
+        registry.addEndpoint("/bataille-navale")
                 .setAllowedOrigins("*");
         // .withSockJS();
     }
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/diffuse"); // liste des URL de sorties :  peut prendre une liste de String   ... , "/prefixe_2/");
