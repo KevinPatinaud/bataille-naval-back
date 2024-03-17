@@ -1,8 +1,7 @@
 package com.patinaud.batailleapi.controller;
 
-import com.patinaud.batailleservice.service.gameengine.GameEngineService;
+import com.patinaud.batailleengine.gameengine.GameEngineService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +16,7 @@ public class GameRestController {
     GameEngineService gameEngine;
 
     @GetMapping("new-game")
-    public String getRates() {
+    public String generateNewGame() {
 
         return gameEngine.generateNewGame();
 

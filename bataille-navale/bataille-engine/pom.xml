@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -8,27 +8,14 @@
         <version>3.2.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-
     <groupId>com.patinaud</groupId>
-    <artifactId>bataille-navale</artifactId>
+    <artifactId>bataille-engine</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>bataille-navale</name>
-    <description>bataille-navale</description>
-    <packaging>pom</packaging>
+    <name>bataille-engine</name>
+    <description>bataille-engine</description>
     <properties>
         <java.version>17</java.version>
     </properties>
-
-    <modules>
-        <module>bataille-api</module>
-        <module>bataille-communication</module>
-        <module>bataille-model</module>
-        <module>bataille-engine</module>
-        <module>bataille-persistence</module>
-        <module>bataille-player</module>
-    </modules>
-
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -40,29 +27,29 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- JUnit Jupiter API for writing tests -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.10.2</version>
-            <scope>test</scope>
+            <groupId>com.patinaud</groupId>
+            <artifactId>bataille-communication</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
-        <!-- JUnit Jupiter Engine for running tests -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.10.2</version>
-            <scope>test</scope>
+            <groupId>com.patinaud</groupId>
+            <artifactId>bataille-persistence</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.patinaud</groupId>
+            <artifactId>bataille-player</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
+
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
 
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
