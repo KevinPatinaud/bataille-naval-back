@@ -4,7 +4,10 @@ import com.patinaud.bataillemodel.constants.CellContent;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
-import com.patinaud.bataillepersistence.entity.GameEntity;
+import com.patinaud.bataillemodel.dto.GameDTO;
+import com.patinaud.bataillepersistence.dao.GameRepository;
+import com.patinaud.bataillepersistence.entity.Game;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,6 +15,9 @@ import java.util.ArrayList;
 @Service
 public class PersistenceServiceImpl implements PersistenceService {
 
+
+    @Autowired
+    GameRepository gameRepository;
 
     private ArrayList<CellDTO> player1RevealedCells = new ArrayList<>();
     private ArrayList<BoatDTO> player1Boats = new ArrayList<>();
@@ -26,8 +32,9 @@ public class PersistenceServiceImpl implements PersistenceService {
         player2RevealedCells = new ArrayList<>();
         player2Boats = new ArrayList<>();
 
-        GameEntity game = new GameEntity();
-        // game.setIdGame(idGame);
+        Game game = new Game();
+        game.setIdGame(idGame);
+        gameRepository.save(game);
 
     }
 

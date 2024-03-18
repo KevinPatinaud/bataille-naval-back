@@ -2,22 +2,23 @@ package com.patinaud.bataillepersistence.entity;
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import jakarta.persistence.*;
-import jdk.jfr.Name;
 
 @Entity
 public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Name("uid")
+    @Column(name = "uid")
     private Long uid;
-
-    @Name("id_player")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game")
+    private Game game;
+    @Column(name = "id_player")
     private IdPlayer idPlayer;
 
-    @Name("should_play")
+    @Column(name = "should_play")
     private boolean shouldPlay;
-    @Name("is_ia")
+    @Column(name = "is_ia")
     private boolean isIA;
 
 
@@ -34,6 +35,13 @@ public class Player {
         this.idPlayer = idPlayer;
     }
 
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
 
     public boolean isShouldPlay() {
         return shouldPlay;

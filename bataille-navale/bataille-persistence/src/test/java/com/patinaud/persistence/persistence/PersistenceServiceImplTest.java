@@ -1,8 +1,10 @@
 package com.patinaud.persistence.persistence;
 
+import com.patinaud.bataillepersistence.dao.GameRepository;
 import com.patinaud.bataillepersistence.persistence.PersistenceServiceImpl;
 import com.patinaud.persistence.config.TestDatabaseConfiguration;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +21,14 @@ public class PersistenceServiceImplTest {
     @Autowired
     PersistenceServiceImpl persistenceServiceImpl;
 
-    /*
-        @Autowired
-        GameRepository gameRepository;
-    */
+
+    @Autowired
+    GameRepository gameRepository;
+
     @Test
     void initialize() {
         persistenceServiceImpl.initializeGame("ABCDE");
-        //  Assertions.assertEquals(1, gameRepository.findAll().size());
+        Assertions.assertEquals(1, gameRepository.findAll().size());
     }
 
 }
