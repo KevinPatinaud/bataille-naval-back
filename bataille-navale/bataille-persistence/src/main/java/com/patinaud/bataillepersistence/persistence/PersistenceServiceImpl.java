@@ -1,16 +1,17 @@
 package com.patinaud.bataillepersistence.persistence;
 
-import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.constants.CellContent;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
+import com.patinaud.bataillepersistence.entity.GameEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
 @Service
 public class PersistenceServiceImpl implements PersistenceService {
+
 
     private ArrayList<CellDTO> player1RevealedCells = new ArrayList<>();
     private ArrayList<BoatDTO> player1Boats = new ArrayList<>();
@@ -25,34 +26,11 @@ public class PersistenceServiceImpl implements PersistenceService {
         player2RevealedCells = new ArrayList<>();
         player2Boats = new ArrayList<>();
 
-        init();
-    }
-
-    public PersistenceServiceImpl() {
-        init();
-    }
-
-    private void init() {
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // TO REMOVE
-        BoatDTO torpilleur = new BoatDTO();
-        torpilleur.setxHead(4);
-        torpilleur.setyHead(3);
-        torpilleur.setBoatType(BoatType.TORPILLEUR);
-        torpilleur.setHorizontal(false);
-        player1Boats.add(torpilleur);
-
-        BoatDTO porteAvion = new BoatDTO();
-        porteAvion.setxHead(2);
-        porteAvion.setyHead(1);
-        porteAvion.setBoatType(BoatType.PORTE_AVIONS);
-        porteAvion.setHorizontal(true);
-
-        player2Boats.add(porteAvion);
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        GameEntity game = new GameEntity();
+        // game.setIdGame(idGame);
 
     }
+
 
     public ArrayList<CellDTO> getGrid(String idGame, IdPlayer idplayerToLoad) {
         ArrayList<CellDTO> grid = new ArrayList<>();

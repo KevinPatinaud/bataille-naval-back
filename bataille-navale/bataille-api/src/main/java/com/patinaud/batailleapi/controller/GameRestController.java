@@ -1,5 +1,7 @@
 package com.patinaud.batailleapi.controller;
 
+import com.patinaud.batailleapi.mapper.GameMapper;
+import com.patinaud.batailleapi.requestdata.Game;
 import com.patinaud.batailleengine.gameengine.GameEngineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,9 +18,9 @@ public class GameRestController {
     GameEngineService gameEngine;
 
     @GetMapping("new-game")
-    public String generateNewGame() {
+    public Game generateNewGame() {
 
-        return gameEngine.generateNewGame();
+        return GameMapper.toResponse(gameEngine.generateNewGame());
 
     }
 

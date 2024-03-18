@@ -3,9 +3,11 @@ package com.patinaud.batailleengine.gameengine;
 import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.constants.CellContent;
 import com.patinaud.bataillemodel.constants.IdPlayer;
+import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.EndGameResultDTO;
 import com.patinaud.bataillecommunication.communication.PlayerCommunicationService;
+import com.patinaud.bataillemodel.dto.GameDTO;
 import com.patinaud.bataillepersistence.persistence.PersistenceService;
 import com.patinaud.batailleplayer.ia.IaPlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,7 @@ public class GameEngineService_impl implements GameEngineService {
     IaPlayerService iaPlayerService;
 
 
-    public String generateNewGame() {
+    public GameDTO generateNewGame() {
         // Génère un id unique
         String idGame = System.currentTimeMillis() + "W" + UUID.randomUUID().toString();
 
@@ -36,7 +38,10 @@ public class GameEngineService_impl implements GameEngineService {
 
         positionIaBoat(idGame);
 
-        return idGame;
+        GameDTO gameDTO = new GameDTO();
+        gameDTO.setIdGame(idGame);
+
+        return gameDTO;
     }
 
 
@@ -44,10 +49,10 @@ public class GameEngineService_impl implements GameEngineService {
 
         ArrayList<BoatType> boatsToPosition = new ArrayList<>();
         boatsToPosition.add(BoatType.PORTE_AVIONS);
-        boatsToPosition.add(BoatType.TORPILLEUR);
         boatsToPosition.add(BoatType.CROISEUR);
         boatsToPosition.add(BoatType.SOUS_MARIN_1);
         boatsToPosition.add(BoatType.SOUS_MARIN_2);
+        boatsToPosition.add(BoatType.TORPILLEUR);
 
         persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_2, iaPlayerService.positionBoatOnGrid(boatsToPosition, 10, 10));
 
@@ -76,6 +81,9 @@ public class GameEngineService_impl implements GameEngineService {
         // Révèle la cellule sur la grille adverse
         revealeCell(idGame, idPlayerOpponent, xTargeted, yTargeted);
 
+
+        // reveale all cells next to destroyed boat
+        revealCellsNextToDestroyedBoat(idGame, idPlayerOpponent);
 
         // communique les cellules et l'états des bateaux adverses
         diffuseInformationAboutPlayer(idGame, idPlayerOpponent);
@@ -113,6 +121,36 @@ public class GameEngineService_impl implements GameEngineService {
         persistenceService.updateStateBoats(idGame, idPlayerTargeted);
 
         return cellContent;
+    }
+
+    private void revealCellsNextToDestroyedBoat(String idGame, IdPlayer idPlayerTargeted) {
+
+        ArrayList<BoatDTO> boats = persistenceService.getBoats(idGame, idPlayerTargeted);
+        ArrayList<CellDTO> revealedCells = persistenceService.getRevealedCells(idGame, idPlayerTargeted);
+
+        for (int iBoat = 0; iBoat < boats.size(); iBoat++) {
+            BoatDTO boat = boats.get(iBoat);
+
+            if (boat.isDestroyed()) {
+                int xMin = boat.getxHead() - 1;
+                int yMin = boat.getyHead() - 1;
+                int xMax = boat.getxHead() + (boat.isHorizontal() ? boat.getBoatType().getSize() : 1);
+                int yMax = boat.getyHead() + (!boat.isHorizontal() ? boat.getBoatType().getSize() : 1);
+
+                for (int iX = xMin; iX <= xMax; iX++) {
+                    for (int iY = yMin; iY <= yMax; iY++) {
+                        boolean cellIsRevealed = false;
+                        for (int iRc = 0; iRc < revealedCells.size(); iRc++) {
+                            if (revealedCells.get(iRc).getX() == iX && revealedCells.get(iRc).getY() == iY) {
+                                cellIsRevealed = true;
+                            }
+                        }
+                        persistenceService.revealeCell(idGame, idPlayerTargeted, iX, iY);
+                    }
+                }
+            }
+        }
+
     }
 
 
