@@ -248,7 +248,7 @@ public class PersistenceServiceImplTest {
     }
 
     @Test
-    void revealCellsNextToDestroyedBoat() {
+    void revealCellsNextToDestroyedBoatVertical() {
 
         persistenceServiceImpl.initializeGame("idGame");
 
@@ -275,5 +275,33 @@ public class PersistenceServiceImplTest {
 
     }
 
+
+    @Test
+    void revealCellsNextToDestroyedBoatHorizontal() {
+
+        persistenceServiceImpl.initializeGame("idGame");
+
+        ArrayList<BoatDTO> boatsDtosInit = new ArrayList<BoatDTO>();
+        BoatDTO boatDTO = new BoatDTO();
+        boatDTO.setBoatType(BoatType.PORTE_AVIONS);
+        boatDTO.setxHead(1);
+        boatDTO.setyHead(1);
+        boatDTO.setHorizontal(true);
+        boatDTO.setDestroyed(true);
+        boatsDtosInit.add(boatDTO);
+        persistenceServiceImpl.setBoatPosition("idGame", IdPlayer.PLAYER_1, boatsDtosInit);
+
+        persistenceServiceImpl.revealCellsNextToDestroyedBoat("idGame", IdPlayer.PLAYER_1);
+
+        Assertions.assertTrue(cellRepository.findCellXY("idGame", IdPlayer.PLAYER_1, 0, 0).isRevealed());
+        Assertions.assertTrue(cellRepository.findCellXY("idGame", IdPlayer.PLAYER_1, 6, 0).isRevealed());
+        Assertions.assertTrue(cellRepository.findCellXY("idGame", IdPlayer.PLAYER_1, 0, 2).isRevealed());
+        Assertions.assertTrue(cellRepository.findCellXY("idGame", IdPlayer.PLAYER_1, 6, 2).isRevealed());
+        Assertions.assertTrue(cellRepository.findCellXY("idGame", IdPlayer.PLAYER_1, 2, 1).isRevealed());
+
+        Assertions.assertFalse(cellRepository.findCellXY("idGame", IdPlayer.PLAYER_1, 6, 4).isRevealed());
+        Assertions.assertFalse(cellRepository.findCellXY("idGame", IdPlayer.PLAYER_1, 5, 4).isRevealed());
+
+    }
 
 }
