@@ -88,39 +88,60 @@ public class PersistenceServiceImpl implements PersistenceService {
 
     }
 
-
+    @Override
     public ArrayList<CellDTO> getRevealedCells(String idGame, IdPlayer idPlayer) {
         return CellMapper.toDtos(cellRepository.findRevealedCells(idGame, idPlayer));
     }
 
-    public void revealeCell(String idGame, IdPlayer idPlayerTargeted, int x, int y) {
 
-        Cell cell = cellRepository.findCellXY(idGame, idPlayerTargeted, x, y);
+    @Override
+    public void revealCell(String idGame, IdPlayer idPlayer, int x, int y) {
+
+        Cell cell = cellRepository.findCellXY(idGame, idPlayer, x, y);
         if (cell != null) {
             cell.setRevealed(true);
             cellRepository.save(cell);
         }
     }
 
+    @Override
+    public void revealCellsNextToDestroyedBoat(String idGame, IdPlayer idPlayer) {
+        ArrayList<Boat> boats = boatRepository.findBoatsByDestroyedState(idGame, idPlayer, true);
+
+        for (int iBoat = 0; iBoat < boats.size(); iBoat++) {
+            int xMin = boats.get(iBoat).getxHead() - 1;
+            int yMin = boats.get(iBoat).getyHead() - 1;
+            int xMax = boats.get(iBoat).getxHead() + (boats.get(iBoat).isHorizontal() ? boats.get(iBoat).getBoatType().getSize() : 1);
+            int yMax = boats.get(iBoat).getyHead() + (!boats.get(iBoat).isHorizontal() ? boats.get(iBoat).getBoatType().getSize() : 1);
+
+            ArrayList<Cell> cells = cellRepository.findAreaCells(idGame, idPlayer, xMin, xMax, yMin, yMax);
+
+            for (int iCell = 0; iCell < cells.size(); iCell++) {
+                cells.get(iCell).setRevealed(true);
+            }
+
+            cellRepository.saveAll(cells);
+        }
+    }
 
     @Override
     public void setBoatPosition(String idGame, IdPlayer idPlayer, ArrayList<BoatDTO> positionBoatOnGrid) {
         boatRepository.saveAll(BoatMapper.toEntities(positionBoatOnGrid, playerRepository.findByGame(idGame, idPlayer)));
     }
 
-
+    @Override
     public ArrayList<BoatDTO> getBoats(String idGame, IdPlayer idPlayer) {
         return BoatMapper.toDtos(boatRepository.findBoats(idGame, idPlayer));
     }
 
-
+    @Override
     public void updateStateBoats(String idGame, IdPlayer idPlayer) {
-        ArrayList<BoatDTO> boats = getBoats(idGame, idPlayer);
+        ArrayList<Boat> boats = boatRepository.findBoats(idGame, idPlayer);
 
-        ArrayList<CellDTO> revealedCells = getRevealedCells(idGame, idPlayer);
+        ArrayList<Cell> revealedCells = cellRepository.findRevealedCells(idGame, idPlayer);
 
         for (int i = 0; i < boats.size(); i++) {
-            BoatDTO boat = boats.get(i);
+            Boat boat = boats.get(i);
 
             int xBoatHead = boat.getxHead();
             int yBoatHead = boat.getyHead();
@@ -142,24 +163,17 @@ public class PersistenceServiceImpl implements PersistenceService {
             }
 
             if (boatDestroyed) {
-                destroyBoat(idGame, idPlayer, boat.getBoatType());
+                boat.setDestroyed(true);
+                boatRepository.save(boat);
             }
 
         }
     }
 
-    public void destroyBoat(String idGame, IdPlayer idPlayer, BoatType boatType) {
-        Boat boat = boatRepository.findBoatByType(idGame, idPlayer, boatType);
-        boat.setDestroyed(true);
-        boatRepository.save(boat);
-
-    }
-
+    @Override
     public boolean isAllBoatDestroyed(String idGame, IdPlayer idPlayer) {
-        System.out.println("isAllBoatDestroyed");
-        System.out.println(boatRepository.findAllNotDestroyedBoats(idGame, idPlayer).isEmpty());
-
-        return boatRepository.findAllNotDestroyedBoats(idGame, idPlayer).isEmpty();
+        return boatRepository.findBoatsByDestroyedState(idGame, idPlayer, false).isEmpty();
     }
+
 
 }
