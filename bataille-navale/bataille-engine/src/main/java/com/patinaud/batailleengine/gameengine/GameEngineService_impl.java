@@ -60,46 +60,48 @@ public class GameEngineService_impl implements GameEngineService {
 
     @Override
     public void playerAttack(String idGame, String idPlayerAttacker_in, int xTargeted, int yTargeted) {
-
-        IdPlayer idPlayerAttacker;
         try {
-            idPlayerAttacker = IdPlayer.valueOf(idPlayerAttacker_in.toUpperCase());
+            IdPlayer idPlayerAttacker;
+            try {
+                idPlayerAttacker = IdPlayer.valueOf(idPlayerAttacker_in.toUpperCase());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+
+            IdPlayer idPlayerOpponent = getIdOpponent(idPlayerAttacker);
+
+
+            // vérifier que le joueur qui envoi l'attaque doit bien jouer
+            if (!idPlayerAttacker.equals(getIdNextPlayerToPlay(idGame))) {
+                System.out.println("for the game " + idGame + " player " + getIdNextPlayerToPlay(idGame) + " should play and not " + idPlayerAttacker);
+                return;
+            }
+
+            // Révèle la cellule sur la grille adverse
+            revealeCell(idGame, idPlayerOpponent, xTargeted, yTargeted);
+
+
+            // reveale all cells next to destroyed boat
+            revealCellsNextToDestroyedBoat(idGame, idPlayerOpponent);
+
+            // communique les cellules et l'états des bateaux adverses
+            diffuseInformationAboutPlayer(idGame, idPlayerOpponent);
+
+            // Si tous les bateaux du joueur adversaire sont détruits
+            if (isAllBoatDestroyed(idGame, idPlayerOpponent)) {
+                EndGameResultDTO endGameResult = new EndGameResultDTO();
+                endGameResult.setIdPlayerWin(idPlayerAttacker);
+                endGameResult.setIdPlayerLose(idPlayerOpponent);
+                // met fin à la partie et communique le gagnant
+                playerCommunicationService.diffuseEndGame(idGame, endGameResult);
+            }
+
+
+            // Indique que c'est à l'autre joueur de jouer
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
-
-        IdPlayer idPlayerOpponent = getIdOpponent(idPlayerAttacker);
-
-
-        // vérifier que le joueur qui envoi l'attaque doit bien jouer
-        if (!idPlayerAttacker.equals(getIdNextPlayerToPlay(idGame))) {
-            System.out.println("for the game " + idGame + " player " + getIdNextPlayerToPlay(idGame) + " should play and not " + idPlayerAttacker);
-            return;
-        }
-
-        // Révèle la cellule sur la grille adverse
-        revealeCell(idGame, idPlayerOpponent, xTargeted, yTargeted);
-
-
-        // reveale all cells next to destroyed boat
-        revealCellsNextToDestroyedBoat(idGame, idPlayerOpponent);
-
-        // communique les cellules et l'états des bateaux adverses
-        diffuseInformationAboutPlayer(idGame, idPlayerOpponent);
-
-        // Si tous les bateaux du joueur adversaire sont détruits
-        if (isAllBoatDestroyed(idGame, idPlayerOpponent)) {
-            EndGameResultDTO endGameResult = new EndGameResultDTO();
-            endGameResult.setIdPlayerWin(idPlayerAttacker);
-            endGameResult.setIdPlayerLose(idPlayerOpponent);
-            // met fin à la partie et communique le gagnant
-            playerCommunicationService.diffuseEndGame(idGame, endGameResult);
-        }
-
-
-        // Indique que c'est à l'autre joueur de jouer
-
     }
 
     private void diffuseInformationAboutPlayer(String idGame, IdPlayer idPlayer) {
@@ -116,11 +118,10 @@ public class GameEngineService_impl implements GameEngineService {
         return idPlayer.equals(IdPlayer.PLAYER_1) ? IdPlayer.PLAYER_2 : IdPlayer.PLAYER_1;
     }
 
-    private CellContent revealeCell(String idGame, IdPlayer idPlayerTargeted, int xCellTargeted, int yCellTargeted) {
-        CellContent cellContent = persistenceService.revealeCell(idGame, idPlayerTargeted, xCellTargeted, yCellTargeted);
+    private void revealeCell(String idGame, IdPlayer idPlayerTargeted, int xCellTargeted, int yCellTargeted) {
+        persistenceService.revealeCell(idGame, idPlayerTargeted, xCellTargeted, yCellTargeted);
         persistenceService.updateStateBoats(idGame, idPlayerTargeted);
 
-        return cellContent;
     }
 
     private void revealCellsNextToDestroyedBoat(String idGame, IdPlayer idPlayerTargeted) {

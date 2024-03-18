@@ -25,8 +25,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @ComponentScan(basePackages = {"com.patinaud.bataillepersistence"})
-@EnableJpaRepositories("com.patinaud.bataillepersistence.dao")
-@EntityScan(basePackages = {"com.patinaud.bataillepersistence.entity"})
 public class TestDatabaseConfiguration {
 
     @Bean(name = "dataSource")

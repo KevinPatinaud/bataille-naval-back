@@ -13,11 +13,11 @@ public class Player {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game")
     private Game game;
+
+    
     @Column(name = "id_player")
     private IdPlayer idPlayer;
 
-    @Column(name = "should_play")
-    private boolean shouldPlay;
     @Column(name = "is_ia")
     private boolean isIA;
 
@@ -43,13 +43,6 @@ public class Player {
         this.game = game;
     }
 
-    public boolean isShouldPlay() {
-        return shouldPlay;
-    }
-
-    public void setShouldPlay(boolean shouldPlay) {
-        this.shouldPlay = shouldPlay;
-    }
 
     public boolean isIA() {
         return isIA;
