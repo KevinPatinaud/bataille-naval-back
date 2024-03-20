@@ -2,10 +2,13 @@ package com.patinaud.batailleplayer.ia;
 
 import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.dto.BoatDTO;
+import com.patinaud.bataillemodel.dto.CellDTO;
+import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -78,11 +81,13 @@ public class IaPlayerService_impl implements IaPlayerService {
         return allCellsAreFree;
     }
 
-    public boolean cellIsFree(List<BoatDTO> alreadyPositionnedBoats, int xCell, int yCell) {
+    public boolean cellIsFree(List<BoatDTO> boats, int xCell, int yCell) {
+        if (boats == null) return true;
+
         boolean cellIsFree = true;
 
-        for (int i = 0; i < alreadyPositionnedBoats.size(); i++) {
-            if (boatOccupiesTheCell(alreadyPositionnedBoats.get(i), xCell, yCell)) {
+        for (int i = 0; i < boats.size(); i++) {
+            if (boatOccupiesTheCell(boats.get(i), xCell, yCell)) {
                 cellIsFree = false;
             }
         }
@@ -97,6 +102,159 @@ public class IaPlayerService_impl implements IaPlayerService {
         int yMax = boat.getyHead() + (!boat.isHorizontal() ? boat.getBoatType().getSize() : 1);
 
         return xCell >= xMin && xCell <= xMax && yCell >= yMin && yCell <= yMax;
+    }
+
+
+    public CoordinateDTO iaAttack(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
+
+        System.out.println("_____________ IA ATTACK ____________");
+
+        CoordinateDTO coordinateToAttack = calculateBetterCoordinateToAttack(cellsRevealed, widthGrid, heigthGrid);
+        if (coordinateToAttack == null) {
+            coordinateToAttack = randomlyTargetACoveredCell(cellsRevealed, widthGrid, heigthGrid);
+        }
+
+        return coordinateToAttack;
+    }
+
+
+    public CoordinateDTO randomlyTargetACoveredCell(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
+        Random random = new Random();
+
+        int xRand = random.nextInt(widthGrid);
+        int yRand = random.nextInt(widthGrid);
+        if (cellsRevealed != null) {
+            while (getCellByCoordinate(cellsRevealed, xRand, yRand) != null) {
+                xRand = random.nextInt(widthGrid);
+                yRand = random.nextInt(widthGrid);
+            }
+        }
+
+        return new CoordinateDTO(xRand, yRand);
+    }
+
+
+    public CoordinateDTO calculateBetterCoordinateToAttack(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
+        for (int i = 0; i < cellsRevealed.size(); i++) {
+            CellDTO cell = cellsRevealed.get(i);
+
+
+            System.out.println("cell.isOccupied() : " + cell.isOccupied());
+            System.out.println("cell.x : " + cell.getX());
+            System.out.println("cell.y : " + cell.getY());
+
+            if (cell.isOccupied()) {
+                CoordinateDTO coordinateToAttack = calculateBetterCoordinateToAttackFromCell(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid);
+
+                if (coordinateToAttack != null) {
+                    System.out.println("attack");
+                    System.out.println("x : " + coordinateToAttack.getX());
+                    System.out.println("y : " + coordinateToAttack.getY());
+
+                    return coordinateToAttack;
+                }
+            }
+
+        }
+        return null;
+    }
+
+    public int countNumberOfCellBoatRight(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid) {
+        int inc = 0;
+        while (x + inc < widthGrid
+                && getCellByCoordinate(cellsRevealed, x + inc, y) != null
+                && getCellByCoordinate(cellsRevealed, x + inc, y).isOccupied()) {
+            inc++;
+        }
+        return inc;
+    }
+
+    public int countNumberOfCellBoatLeft(ArrayList<CellDTO> cellsRevealed, int x, int y) {
+        int inc = 0;
+        while (x - inc >= 0
+                && getCellByCoordinate(cellsRevealed, x - inc, y) != null
+                && getCellByCoordinate(cellsRevealed, x - inc, y).isOccupied()) {
+            inc++;
+        }
+        return inc;
+    }
+
+
+    public int countNumberOfCellBoatBottom(ArrayList<CellDTO> cellsRevealed, int x, int y, int heigthGrid) {
+        int inc = 0;
+        while (y + inc < heigthGrid
+                && getCellByCoordinate(cellsRevealed, x, y + inc) != null
+                && getCellByCoordinate(cellsRevealed, x, y + inc).isOccupied()) {
+            inc++;
+        }
+        return inc;
+    }
+
+
+    public int countNumberOfCellBoatTop(ArrayList<CellDTO> cellsRevealed, int x, int y) {
+        int inc = 0;
+        while (y - inc >= 0
+                && getCellByCoordinate(cellsRevealed, x, y - inc) != null
+                && getCellByCoordinate(cellsRevealed, x, y - inc).isOccupied()) {
+            inc++;
+        }
+        return inc;
+    }
+
+
+    public CoordinateDTO calculateBetterCoordinateToAttackFromCell(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heigthGrid) {
+
+
+        int nmbBoatCellRight = countNumberOfCellBoatRight(cellsRevealed, x, y, widthGrid);
+        if (nmbBoatCellRight > 1 && x + nmbBoatCellRight < widthGrid && getCellByCoordinate(cellsRevealed, x + nmbBoatCellRight, y) == null) {
+            return new CoordinateDTO(x + nmbBoatCellRight, y);
+        }
+
+        int nmbBoatCellLeft = countNumberOfCellBoatLeft(cellsRevealed, x, y);
+        if (nmbBoatCellLeft > 1 && x - nmbBoatCellLeft >= 0 && getCellByCoordinate(cellsRevealed, x - nmbBoatCellLeft, y) == null) {
+            return new CoordinateDTO(x - nmbBoatCellLeft, y);
+        }
+
+
+        int nmbBoatCellBottom = countNumberOfCellBoatBottom(cellsRevealed, x, y, heigthGrid);
+        if (nmbBoatCellBottom > 1 && y + nmbBoatCellBottom < heigthGrid && getCellByCoordinate(cellsRevealed, x, y + nmbBoatCellBottom) == null) {
+            return new CoordinateDTO(x, y + nmbBoatCellBottom);
+        }
+
+
+        int nmbBoatCellTop = countNumberOfCellBoatTop(cellsRevealed, x, y);
+        if (nmbBoatCellTop > 1 && y - nmbBoatCellTop >= 0 && getCellByCoordinate(cellsRevealed, x, y - nmbBoatCellTop) == null) {
+            return new CoordinateDTO(x, y - nmbBoatCellTop);
+        }
+
+        // on n'a pas encore vu de bateau, alors on élimine les nuages
+
+        if (x + 1 < widthGrid && getCellByCoordinate(cellsRevealed, x + 1, y) == null) {
+            return new CoordinateDTO(x + 1, y);
+        }
+
+        if (x - 1 >= 0 && getCellByCoordinate(cellsRevealed, x - 1, y) == null) {
+            return new CoordinateDTO(x - 1, y);
+        }
+
+        if (y + 1 < heigthGrid && getCellByCoordinate(cellsRevealed, x, y + 1) == null) {
+            return new CoordinateDTO(x, y + 1);
+        }
+
+        if (y - 1 >= 0 && getCellByCoordinate(cellsRevealed, x, y - 1) == null) {
+            return new CoordinateDTO(x, y - 1);
+        }
+
+
+        return null;
+    }
+
+    public CellDTO getCellByCoordinate(ArrayList<CellDTO> cells, int x, int y) {
+        Optional<CellDTO> result = cells.stream().filter(c -> c.getX() == x && c.getY() == y).findFirst();
+        if (result.isPresent()) {
+            return result.get();
+        }
+        return null;
     }
 
 }

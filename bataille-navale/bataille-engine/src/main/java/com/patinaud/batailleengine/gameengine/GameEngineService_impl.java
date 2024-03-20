@@ -2,9 +2,8 @@ package com.patinaud.batailleengine.gameengine;
 
 import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.constants.IdPlayer;
-import com.patinaud.bataillemodel.dto.EndGameResultDTO;
+import com.patinaud.bataillemodel.dto.*;
 import com.patinaud.bataillecommunication.communication.PlayerCommunicationService;
-import com.patinaud.bataillemodel.dto.GameDTO;
 import com.patinaud.bataillepersistence.persistence.PersistenceService;
 import com.patinaud.batailleplayer.ia.IaPlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ public class GameEngineService_impl implements GameEngineService {
         // initialise le jeu
         persistenceService.initializeGame(idGame);
 
-        positionIaBoat(idGame);
+        positionIaPlayerBoats(idGame);
 
         GameDTO gameDTO = new GameDTO();
         gameDTO.setIdGame(idGame);
@@ -41,7 +40,7 @@ public class GameEngineService_impl implements GameEngineService {
     }
 
 
-    private void positionIaBoat(String idGame) {
+    private void positionIaPlayerBoats(String idGame) {
 
         ArrayList<BoatType> boatsToPosition = new ArrayList<>();
         boatsToPosition.add(BoatType.PORTE_AVIONS);
@@ -52,6 +51,11 @@ public class GameEngineService_impl implements GameEngineService {
 
         persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_2, iaPlayerService.positionBoatOnGrid(boatsToPosition, 10, 10));
 
+    }
+
+    @Override
+    public void positionHumanPlayerBoat(String idGame, ArrayList<BoatDTO> boats) {
+        persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_1, boats);
     }
 
     @Override
@@ -67,17 +71,11 @@ public class GameEngineService_impl implements GameEngineService {
             }
 
 
-            revealeCell(idGame, idPlayerOpponent, xTargeted, yTargeted);
+            revealeCell(idGame, idPlayerAttacker, idPlayerOpponent, xTargeted, yTargeted);
 
 
-            diffuseInformationAboutPlayer(idGame, idPlayerOpponent);
+            iaPlay(idGame, idPlayerOpponent, idPlayerAttacker);
 
-
-            if (isAllBoatDestroyed(idGame, idPlayerOpponent)) {
-                diffuseEndGameScore(idGame, idPlayerAttacker, idPlayerOpponent);
-            }
-
-            // Indique que c'est à l'autre joueur de jouer
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,7 +92,6 @@ public class GameEngineService_impl implements GameEngineService {
         EndGameResultDTO endGameResult = new EndGameResultDTO();
         endGameResult.setIdPlayerWin(winner);
         endGameResult.setIdPlayerLose(looser);
-        // met fin à la partie et communique le gagnant
         playerCommunicationService.diffuseEndGame(idGame, endGameResult);
     }
 
@@ -106,14 +103,29 @@ public class GameEngineService_impl implements GameEngineService {
         return idPlayer.equals(IdPlayer.PLAYER_1) ? IdPlayer.PLAYER_2 : IdPlayer.PLAYER_1;
     }
 
-    private void revealeCell(String idGame, IdPlayer idPlayerTargeted, int xCellTargeted, int yCellTargeted) {
+    private void revealeCell(String idGame, IdPlayer idPlayerAttacker, IdPlayer idPlayerTargeted, int xCellTargeted, int yCellTargeted) {
         persistenceService.revealCell(idGame, idPlayerTargeted, xCellTargeted, yCellTargeted);
         persistenceService.updateStateBoats(idGame, idPlayerTargeted);
         persistenceService.revealCellsNextToDestroyedBoat(idGame, idPlayerTargeted);
+
+        diffuseInformationAboutPlayer(idGame, idPlayerTargeted);
+
+        if (isAllBoatDestroyed(idGame, idPlayerTargeted)) {
+            diffuseEndGameScore(idGame, idPlayerAttacker, idPlayerTargeted);
+        }
+
     }
 
     private boolean isAllBoatDestroyed(String idGame, IdPlayer idPlayer) {
         return persistenceService.isAllBoatDestroyed(idGame, idPlayer);
+    }
+
+
+    private void iaPlay(String idGame, IdPlayer idIaPlayer, IdPlayer idPlayerTargeted) {
+        ArrayList<CellDTO> cells = persistenceService.getRevealedCells(idGame, idPlayerTargeted);
+        CoordinateDTO coordinateToReveal = iaPlayerService.iaAttack(cells, 10, 10);
+        revealeCell(idGame, idIaPlayer, idPlayerTargeted, coordinateToReveal.getX(), coordinateToReveal.getY());
+
     }
 
 }

@@ -28,13 +28,4 @@ public interface CellRepository extends JpaRepository<Cell, Long> {
     ArrayList<Cell> findAreaCells(@Param("idGame") String idGame, @Param("idPlayer") IdPlayer idPlayer, @Param("xMin") int xMin, @Param("xMax") int xMax, @Param("yMin") int yMin, @Param("yMax") int yMax);
 
 
-
-
-/*
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "UPDATE  CELL   SET CELL.is_revealed=true  FROM PLAYER from where PLAYER.uid=CELL.player and PLAYER.game=:idGame and PLAYER.id_player=:idPlayer and CELL.x=:x and CELL.y=:y ", nativeQuery = true)
-    void revealeCell(String idGame, IdPlayer idPlayer, int x, int y);
-    */
-
-
 }

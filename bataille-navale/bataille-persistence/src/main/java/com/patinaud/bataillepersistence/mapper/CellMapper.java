@@ -16,6 +16,7 @@ public class CellMapper {
         cellDTO.setX(cell.getX());
         cellDTO.setY(cell.getY());
         cellDTO.setRevealed(cell.isRevealed());
+        cellDTO.setOccupied(cell.isOccupied());
         return cellDTO;
     }
 

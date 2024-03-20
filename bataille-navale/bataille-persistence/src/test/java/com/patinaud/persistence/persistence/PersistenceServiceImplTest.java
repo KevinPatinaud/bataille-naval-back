@@ -153,7 +153,6 @@ public class PersistenceServiceImplTest {
         persistenceServiceImpl.setBoatPosition("idGame", IdPlayer.PLAYER_1, boatsDtosInit);
 
         ArrayList<BoatDTO> boats = persistenceServiceImpl.getBoats("idGame", IdPlayer.PLAYER_1);
-        System.out.println(boats);
 
         Assertions.assertEquals(1, boats.size());
         BoatDTO torpilleur = boats.get(0);

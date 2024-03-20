@@ -61,6 +61,7 @@ public class PersistenceServiceImpl implements PersistenceService {
                 cell.setY(y);
                 cell.setPlayer(player1);
                 cell.setRevealed(false);
+                cell.setOccupied(false);
                 player1Cells.add(cell);
             }
         }
@@ -81,6 +82,7 @@ public class PersistenceServiceImpl implements PersistenceService {
                 cell.setY(y);
                 cell.setPlayer(player2);
                 cell.setRevealed(false);
+                cell.setOccupied(false);
                 player2Cells.add(cell);
             }
         }
@@ -126,7 +128,46 @@ public class PersistenceServiceImpl implements PersistenceService {
 
     @Override
     public void setBoatPosition(String idGame, IdPlayer idPlayer, ArrayList<BoatDTO> positionBoatOnGrid) {
-        boatRepository.saveAll(BoatMapper.toEntities(positionBoatOnGrid, playerRepository.findByGame(idGame, idPlayer)));
+        ArrayList<Boat> boats = BoatMapper.toEntities(positionBoatOnGrid, playerRepository.findByGame(idGame, idPlayer));
+
+        boatRepository.saveAll(boats);
+
+        for (int iBoat = 0; iBoat < boats.size(); iBoat++) {
+            int xMin = boats.get(iBoat).getxHead();
+            int yMin = boats.get(iBoat).getyHead();
+            int xMax = boats.get(iBoat).getxHead() + (boats.get(iBoat).isHorizontal() ? boats.get(iBoat).getBoatType().getSize() - 1 : 0);
+            int yMax = boats.get(iBoat).getyHead() + (!boats.get(iBoat).isHorizontal() ? boats.get(iBoat).getBoatType().getSize() - 1 : 0);
+
+            ArrayList<Cell> cells = cellRepository.findAreaCells(idGame, idPlayer, xMin, xMax, yMin, yMax);
+
+            if (idPlayer.equals(IdPlayer.PLAYER_1)) {
+                System.out.println("..........................................");
+                System.out.println("setBoatPosition");
+                System.out.println("boats.get(iBoat).getxHead() : " + boats.get(iBoat).getxHead());
+                System.out.println("boats.get(iBoat).getyHead() : " + boats.get(iBoat).getyHead());
+                System.out.println("boats.get(iBoat).getBoatType().getName() : " + boats.get(iBoat).getBoatType().getName());
+                System.out.println("boats.get(iBoat).getBoatType().getSize() : " + boats.get(iBoat).getBoatType().getSize());
+                System.out.println("boats.get(iBoat).isHorizontal() : " + boats.get(iBoat).isHorizontal());
+                System.out.println("xMin : " + xMin);
+                System.out.println("yMin : " + yMin);
+                System.out.println("xMax : " + xMax);
+                System.out.println("yMax : " + yMax);
+
+            }
+
+            for (int iCell = 0; iCell < cells.size(); iCell++) {
+                cells.get(iCell).setOccupied(true);
+                if (idPlayer.equals(IdPlayer.PLAYER_1)) {
+                    System.out.println(" ");
+                    System.out.println("x cell  : " + cells.get(iCell).getX());
+                    System.out.println("y cell  : " + cells.get(iCell).getY());
+                    System.out.println(" ");
+                }
+            }
+
+            cellRepository.saveAll(cells);
+        }
+
     }
 
     @Override

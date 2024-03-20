@@ -23,6 +23,10 @@ public class Cell {
     @Column(name = "is_revealed")
     private boolean isRevealed;
 
+
+    @Column(name = "is_occupied")
+    private boolean isOccupied;
+
     public Player getPlayer() {
         return player;
     }
@@ -53,5 +57,13 @@ public class Cell {
 
     public void setRevealed(boolean revealed) {
         isRevealed = revealed;
+    }
+
+    public boolean isOccupied() {
+        return isOccupied;
+    }
+
+    public void setOccupied(boolean occupied) {
+        isOccupied = occupied;
     }
 }

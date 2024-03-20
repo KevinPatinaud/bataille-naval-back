@@ -3,6 +3,8 @@ package com.patinaud.batailleplayer.ia;
 
 import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.dto.BoatDTO;
+import com.patinaud.bataillemodel.dto.CellDTO;
+import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
@@ -124,6 +126,23 @@ public class IaPlayerServiceTest {
     }
 
     @Test
+    void thePositionIsFree() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+        BoatDTO boat = new BoatDTO();
+        boat.setBoatType(BoatType.TORPILLEUR);
+        boat.setxHead(7);
+        boat.setyHead(3);
+        boat.setHorizontal(true);
+
+        ArrayList<BoatDTO> boatsAlreadyPositionned = new ArrayList<>();
+        boatsAlreadyPositionned.add(boat);
+
+        Assertions.assertTrue(ia.thePositionIsFree(BoatType.PORTE_AVIONS, boatsAlreadyPositionned, 4, 2, false));
+    }
+
+
+    @Test
     void thePositionIsNotFree() {
 
         IaPlayerService_impl ia = new IaPlayerService_impl();
@@ -138,5 +157,249 @@ public class IaPlayerServiceTest {
 
         Assertions.assertFalse(ia.thePositionIsFree(BoatType.PORTE_AVIONS, boatsAlreadyPositionned, 4, 6, false));
     }
+
+    @Test
+    void randomlyTargetACoveredCellNull() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+        CoordinateDTO coordinate = ia.randomlyTargetACoveredCell(null, 10, 10);
+
+        Assertions.assertNotNull(coordinate);
+
+    }
+
+    private CellDTO createCellDto(int x, int y, boolean occupied) {
+        CellDTO cellDto = new CellDTO();
+        cellDto.setX(x);
+        cellDto.setY(y);
+        cellDto.setOccupied(occupied);
+        return cellDto;
+    }
+
+
+    private CellDTO createCellDto(int x, int y, boolean occupied, boolean isRevealed) {
+        CellDTO cellDto = new CellDTO();
+        cellDto.setX(x);
+        cellDto.setY(y);
+        cellDto.setOccupied(occupied);
+        cellDto.setRevealed(isRevealed);
+        return cellDto;
+    }
+
+    @Test
+    void randomlyTargetACoveredCell() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(0, 0, false));
+        cellsRevealed.add(createCellDto(1, 0, false));
+        cellsRevealed.add(createCellDto(0, 1, false));
+
+        CoordinateDTO coordinateTargted = ia.randomlyTargetACoveredCell(cellsRevealed, 2, 2);
+
+        Assertions.assertEquals(1, coordinateTargted.getX());
+        Assertions.assertEquals(1, coordinateTargted.getY());
+
+    }
+
+    @Test
+    void getAroundCoordinateNoneRevealedCellXplus1() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(1, 1, true));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 1, 1, 3, 3);
+
+        Assertions.assertEquals(2, coordinateTargted.getX());
+        Assertions.assertEquals(1, coordinateTargted.getY());
+    }
+
+
+    @Test
+    void getAroundCoordinateNoneRevealedCellXMoins1() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(1, 1, true));
+        cellsRevealed.add(createCellDto(2, 1, false));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 1, 1, 3, 3);
+
+        Assertions.assertEquals(0, coordinateTargted.getX());
+        Assertions.assertEquals(1, coordinateTargted.getY());
+    }
+
+
+    @Test
+    void getAroundCoordinateNoneRevealedCellYplus1() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(1, 1, true));
+        cellsRevealed.add(createCellDto(2, 1, false));
+        cellsRevealed.add(createCellDto(0, 1, false));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 1, 1, 3, 3);
+
+        Assertions.assertEquals(1, coordinateTargted.getX());
+        Assertions.assertEquals(2, coordinateTargted.getY());
+    }
+
+
+    @Test
+    void getAroundCoordinateNoneRevealedCellYMoins1() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(1, 1, true));
+        cellsRevealed.add(createCellDto(2, 1, false));
+        cellsRevealed.add(createCellDto(0, 1, false));
+        cellsRevealed.add(createCellDto(1, 2, false));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 1, 1, 3, 3);
+
+        Assertions.assertEquals(1, coordinateTargted.getX());
+        Assertions.assertEquals(0, coordinateTargted.getY());
+    }
+
+    @Test
+    void getAroundCoordinateNoneRevealedBordDroitHaut() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(2, 0, true));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 2, 0, 3, 3);
+
+        Assertions.assertEquals(1, coordinateTargted.getX());
+        Assertions.assertEquals(0, coordinateTargted.getY());
+    }
+
+    @Test
+    void getAroundCoordinateNoneRevealedBordDroitHaut2() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(1, 1, true));
+        cellsRevealed.add(createCellDto(2, 1, false));
+        cellsRevealed.add(createCellDto(0, 1, false));
+        cellsRevealed.add(createCellDto(1, 2, false));
+        cellsRevealed.add(createCellDto(1, 0, false));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 1, 1, 3, 3);
+
+        Assertions.assertNull(coordinateTargted);
+    }
+
+
+    @Test
+    void getAroundCoordinateNoneRevealedAllRevealed() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(2, 0, true));
+        cellsRevealed.add(createCellDto(1, 0, false));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 2, 0, 3, 3);
+
+        Assertions.assertEquals(2, coordinateTargted.getX());
+        Assertions.assertEquals(1, coordinateTargted.getY());
+    }
+
+
+    @Test
+    void calculateBetterCoordinateToAttackFromCellHorizontalRightBoat() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(1, 1, true, true));
+        cellsRevealed.add(createCellDto(2, 1, true, true));
+        cellsRevealed.add(createCellDto(3, 1, true, true));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 1, 1, 10, 10);
+
+        Assertions.assertEquals(4, coordinateTargted.getX());
+        Assertions.assertEquals(1, coordinateTargted.getY());
+    }
+
+
+    @Test
+    void calculateBetterCoordinateToAttackFromCellHorizontalLeftBoat() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(1, 1, true, true));
+        cellsRevealed.add(createCellDto(2, 1, true, true));
+        cellsRevealed.add(createCellDto(3, 1, true, true));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 3, 1, 10, 10);
+
+        Assertions.assertEquals(0, coordinateTargted.getX());
+        Assertions.assertEquals(1, coordinateTargted.getY());
+    }
+
+
+    @Test
+    void calculateBetterCoordinateToAttackFromCellVerticalBoatBottom() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(2, 1, true, true));
+        cellsRevealed.add(createCellDto(2, 2, true, true));
+        cellsRevealed.add(createCellDto(2, 3, true, true));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 2, 1, 10, 10);
+
+        Assertions.assertEquals(2, coordinateTargted.getX());
+        Assertions.assertEquals(4, coordinateTargted.getY());
+    }
+
+
+    @Test
+    void calculateBetterCoordinateToAttackFromCellVerticalBoatTop() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(2, 1, true, true));
+        cellsRevealed.add(createCellDto(2, 2, true, true));
+        cellsRevealed.add(createCellDto(2, 3, true, true));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 2, 3, 10, 10);
+
+        Assertions.assertEquals(2, coordinateTargted.getX());
+        Assertions.assertEquals(0, coordinateTargted.getY());
+    }
+
+
+    @Test
+    void calculateBetterCoordinateToAttackFromCellVerticalBoatMiddle() {
+
+        IaPlayerService_impl ia = new IaPlayerService_impl();
+
+        ArrayList<CellDTO> cellsRevealed = new ArrayList();
+        cellsRevealed.add(createCellDto(2, 1, true, true));
+        cellsRevealed.add(createCellDto(2, 2, true, true));
+        cellsRevealed.add(createCellDto(2, 3, true, true));
+        cellsRevealed.add(createCellDto(2, 4, false, true));
+
+        CoordinateDTO coordinateTargted = ia.calculateBetterCoordinateToAttackFromCell(cellsRevealed, 2, 2, 10, 10);
+
+        Assertions.assertEquals(2, coordinateTargted.getX());
+        Assertions.assertEquals(0, coordinateTargted.getY());
+    }
+
 
 }

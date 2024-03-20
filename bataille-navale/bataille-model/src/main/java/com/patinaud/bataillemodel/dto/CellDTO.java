@@ -8,6 +8,8 @@ public class CellDTO {
 
     private boolean isRevealed;
 
+    private boolean isOccupied;
+
     public int getX() {
         return x;
     }
@@ -31,5 +33,13 @@ public class CellDTO {
 
     public void setRevealed(boolean revealed) {
         isRevealed = revealed;
+    }
+
+    public boolean isOccupied() {
+        return isOccupied;
+    }
+
+    public void setOccupied(boolean occupied) {
+        isOccupied = occupied;
     }
 }
