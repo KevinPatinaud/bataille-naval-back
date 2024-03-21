@@ -117,25 +117,26 @@ public class IaPlayerService_impl implements IaPlayerService {
 
 
     public CoordinateDTO calculBestCoordToAttack(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
-        for (int i = 0; i < cellsRevealed.size(); i++) {
-            CellDTO cell = cellsRevealed.get(i);
 
-            if (cell.isOccupied()) {
-                CoordinateDTO coordinateToAttack = calculBestCoordToAttackFromBoat(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid);
+        Optional<CoordinateDTO> coordinateToAttack = cellsRevealed.stream().filter(cell -> cell.isOccupied())
+                .map((cell) -> calculBestCoordToAttackFromBoat(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid))
+                .filter(cell -> cell != null)
+                .findFirst();
 
-                if (coordinateToAttack != null) {
-                    return coordinateToAttack;
-                }
-
-                coordinateToAttack = calculBestCoordToAttackFromCloud(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid);
-
-                if (coordinateToAttack != null) {
-                    return coordinateToAttack;
-                }
-
-            }
-
+        if (coordinateToAttack.isPresent()) {
+            return coordinateToAttack.get();
         }
+
+
+        coordinateToAttack = cellsRevealed.stream().filter(cell -> cell.isOccupied())
+                .map((cell) -> calculBestCoordToAttackFromCloud(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid))
+                .filter(cell -> cell != null)
+                .findFirst();
+
+        if (coordinateToAttack.isPresent()) {
+            return coordinateToAttack.get();
+        }
+
         return null;
     }
 
@@ -156,96 +157,86 @@ public class IaPlayerService_impl implements IaPlayerService {
     }
 
 
-    public int countNumberOfCellBoatRight(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid) {
+    public int countNumberOfCellBoat(ArrayList<CellDTO> cellsRevealed, int xInit, int yInit, int evolveX, int evolveY, int widthGrid, int heigthGrid) {
         int inc = 0;
-        while (x + inc < widthGrid
-                && getCellByCoordinate(cellsRevealed, x + inc, y) != null
-                && getCellByCoordinate(cellsRevealed, x + inc, y).isOccupied()) {
+        int x = xInit + evolveX * inc;
+        int y = yInit + evolveY * inc;
+
+        while (
+                x >= 0 && x < widthGrid &&
+                        y >= 0 && y < heigthGrid &&
+                        getCellByCoordinate(cellsRevealed, x, y) != null &&
+                        getCellByCoordinate(cellsRevealed, x, y).isOccupied()) {
             inc++;
+            x = xInit + evolveX * inc;
+            y = yInit + evolveY * inc;
         }
         return inc;
     }
 
-    public int countNumberOfCellBoatLeft(ArrayList<CellDTO> cellsRevealed, int x, int y) {
-        int inc = 0;
-        while (x - inc >= 0
-                && getCellByCoordinate(cellsRevealed, x - inc, y) != null
-                && getCellByCoordinate(cellsRevealed, x - inc, y).isOccupied()) {
-            inc++;
-        }
-        return inc;
-    }
-
-
-    public int countNumberOfCellBoatBottom(ArrayList<CellDTO> cellsRevealed, int x, int y, int heigthGrid) {
-        int inc = 0;
-        while (y + inc < heigthGrid
-                && getCellByCoordinate(cellsRevealed, x, y + inc) != null
-                && getCellByCoordinate(cellsRevealed, x, y + inc).isOccupied()) {
-            inc++;
-        }
-        return inc;
-    }
-
-
-    public int countNumberOfCellBoatTop(ArrayList<CellDTO> cellsRevealed, int x, int y) {
-        int inc = 0;
-        while (y - inc >= 0
-                && getCellByCoordinate(cellsRevealed, x, y - inc) != null
-                && getCellByCoordinate(cellsRevealed, x, y - inc).isOccupied()) {
-            inc++;
-        }
-        return inc;
-    }
 
     public CoordinateDTO calculBestCoordToAttackFromBoat(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heigthGrid) {
 
-        int nmbBoatCellRight = countNumberOfCellBoatRight(cellsRevealed, x, y, widthGrid);
-        if (nmbBoatCellRight > 1 && x + nmbBoatCellRight < widthGrid && getCellByCoordinate(cellsRevealed, x + nmbBoatCellRight, y) == null) {
-            return new CoordinateDTO(x + nmbBoatCellRight, y);
+
+        int nmbBoatCellRight = countNumberOfCellBoat(cellsRevealed, x, y, 1, 0, widthGrid, heigthGrid);
+        int nmbBoatCellLeft = countNumberOfCellBoat(cellsRevealed, x, y, -1, 0, widthGrid, heigthGrid);
+        int nmbBoatCellBottom = countNumberOfCellBoat(cellsRevealed, x, y, 0, 1, widthGrid, heigthGrid);
+        int nmbBoatCellTop = countNumberOfCellBoat(cellsRevealed, x, y, 0, -1, widthGrid, heigthGrid);
+
+
+        if (nmbBoatCellRight > 1) {
+            if (x + nmbBoatCellRight < widthGrid && getCellByCoordinate(cellsRevealed, x + nmbBoatCellRight, y) == null) {
+                return new CoordinateDTO(x + nmbBoatCellRight, y);
+            }
+            if (x - nmbBoatCellLeft >= 0 && getCellByCoordinate(cellsRevealed, x - nmbBoatCellLeft, y) == null) {
+                return new CoordinateDTO(x - nmbBoatCellLeft, y);
+            }
         }
 
-        int nmbBoatCellLeft = countNumberOfCellBoatLeft(cellsRevealed, x, y);
-        if (nmbBoatCellLeft > 1 && x - nmbBoatCellLeft >= 0 && getCellByCoordinate(cellsRevealed, x - nmbBoatCellLeft, y) == null) {
-            return new CoordinateDTO(x - nmbBoatCellLeft, y);
+        if (nmbBoatCellLeft > 1) {
+            if (x - nmbBoatCellLeft >= 0 && getCellByCoordinate(cellsRevealed, x - nmbBoatCellLeft, y) == null) {
+                return new CoordinateDTO(x - nmbBoatCellLeft, y);
+            }
+            if (x + nmbBoatCellRight < widthGrid && getCellByCoordinate(cellsRevealed, x + nmbBoatCellRight, y) == null) {
+                return new CoordinateDTO(x + nmbBoatCellRight, y);
+            }
         }
 
 
-        int nmbBoatCellBottom = countNumberOfCellBoatBottom(cellsRevealed, x, y, heigthGrid);
-        if (nmbBoatCellBottom > 1 && y + nmbBoatCellBottom < heigthGrid && getCellByCoordinate(cellsRevealed, x, y + nmbBoatCellBottom) == null) {
-            return new CoordinateDTO(x, y + nmbBoatCellBottom);
+        if (nmbBoatCellBottom > 1) {
+            if (y + nmbBoatCellBottom < heigthGrid && getCellByCoordinate(cellsRevealed, x, y + nmbBoatCellBottom) == null) {
+                return new CoordinateDTO(x, y + nmbBoatCellBottom);
+            }
+            if (y - nmbBoatCellTop > 0 && getCellByCoordinate(cellsRevealed, x, y - nmbBoatCellTop) == null) {
+                return new CoordinateDTO(x, y - nmbBoatCellTop);
+            }
         }
 
 
-        int nmbBoatCellTop = countNumberOfCellBoatTop(cellsRevealed, x, y);
-        if (nmbBoatCellTop > 1 && y - nmbBoatCellTop >= 0 && getCellByCoordinate(cellsRevealed, x, y - nmbBoatCellTop) == null) {
-            return new CoordinateDTO(x, y - nmbBoatCellTop);
+        if (nmbBoatCellTop > 1) {
+            if (y - nmbBoatCellTop >= 0 && getCellByCoordinate(cellsRevealed, x, y - nmbBoatCellTop) == null) {
+                return new CoordinateDTO(x, y - nmbBoatCellTop);
+            }
+            if (y + nmbBoatCellBottom < heigthGrid && getCellByCoordinate(cellsRevealed, x, y + nmbBoatCellBottom) == null) {
+                return new CoordinateDTO(x, y + nmbBoatCellBottom);
+            }
         }
 
         return null;
     }
 
 
-    public CoordinateDTO calculBestCoordToAttackFromCloud(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heigthGrid) {
+    public CoordinateDTO calculBestCoordToAttackFromCloud(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heightGrid) {
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-        // on n'a pas encore vu de bateau, alors on élimine les nuages
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
 
-        if (x + 1 < widthGrid && getCellByCoordinate(cellsRevealed, x + 1, y) == null) {
-            return new CoordinateDTO(x + 1, y);
+            if (newX >= 0 && newX < widthGrid && newY >= 0 && newY < heightGrid && getCellByCoordinate(cellsRevealed, newX, newY) == null) {
+                return new CoordinateDTO(newX, newY);
+            }
         }
-
-        if (x - 1 >= 0 && getCellByCoordinate(cellsRevealed, x - 1, y) == null) {
-            return new CoordinateDTO(x - 1, y);
-        }
-
-        if (y + 1 < heigthGrid && getCellByCoordinate(cellsRevealed, x, y + 1) == null) {
-            return new CoordinateDTO(x, y + 1);
-        }
-
-        if (y - 1 >= 0 && getCellByCoordinate(cellsRevealed, x, y - 1) == null) {
-            return new CoordinateDTO(x, y - 1);
-        }
-
 
         return null;
     }
