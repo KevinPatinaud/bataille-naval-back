@@ -140,29 +140,8 @@ public class PersistenceServiceImpl implements PersistenceService {
 
             ArrayList<Cell> cells = cellRepository.findAreaCells(idGame, idPlayer, xMin, xMax, yMin, yMax);
 
-            if (idPlayer.equals(IdPlayer.PLAYER_1)) {
-                System.out.println("..........................................");
-                System.out.println("setBoatPosition");
-                System.out.println("boats.get(iBoat).getxHead() : " + boats.get(iBoat).getxHead());
-                System.out.println("boats.get(iBoat).getyHead() : " + boats.get(iBoat).getyHead());
-                System.out.println("boats.get(iBoat).getBoatType().getName() : " + boats.get(iBoat).getBoatType().getName());
-                System.out.println("boats.get(iBoat).getBoatType().getSize() : " + boats.get(iBoat).getBoatType().getSize());
-                System.out.println("boats.get(iBoat).isHorizontal() : " + boats.get(iBoat).isHorizontal());
-                System.out.println("xMin : " + xMin);
-                System.out.println("yMin : " + yMin);
-                System.out.println("xMax : " + xMax);
-                System.out.println("yMax : " + yMax);
-
-            }
-
             for (int iCell = 0; iCell < cells.size(); iCell++) {
                 cells.get(iCell).setOccupied(true);
-                if (idPlayer.equals(IdPlayer.PLAYER_1)) {
-                    System.out.println(" ");
-                    System.out.println("x cell  : " + cells.get(iCell).getX());
-                    System.out.println("y cell  : " + cells.get(iCell).getY());
-                    System.out.println(" ");
-                }
             }
 
             cellRepository.saveAll(cells);

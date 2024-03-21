@@ -19,10 +19,6 @@ public class BoatMapper {
         BoatDTO dto = new BoatDTO();
         dto.setxHead(boat.getxHead());
         dto.setyHead(boat.getyHead());
-        
-        System.out.println("BoatMapper");
-        System.out.println("boat.isHorizontal()");
-        System.out.println(boat.isHorizontal());
 
         dto.setHorizontal(boat.isHorizontal());
         dto.setBoatType(getBoatType(boat.getType()));

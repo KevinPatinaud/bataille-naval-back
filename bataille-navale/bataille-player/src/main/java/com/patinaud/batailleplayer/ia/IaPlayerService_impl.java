@@ -107,8 +107,6 @@ public class IaPlayerService_impl implements IaPlayerService {
 
     public CoordinateDTO iaAttack(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
 
-        System.out.println("_____________ IA ATTACK ____________");
-
         CoordinateDTO coordinateToAttack = calculateBetterCoordinateToAttack(cellsRevealed, widthGrid, heigthGrid);
         if (coordinateToAttack == null) {
             coordinateToAttack = randomlyTargetACoveredCell(cellsRevealed, widthGrid, heigthGrid);
@@ -138,19 +136,10 @@ public class IaPlayerService_impl implements IaPlayerService {
         for (int i = 0; i < cellsRevealed.size(); i++) {
             CellDTO cell = cellsRevealed.get(i);
 
-
-            System.out.println("cell.isOccupied() : " + cell.isOccupied());
-            System.out.println("cell.x : " + cell.getX());
-            System.out.println("cell.y : " + cell.getY());
-
             if (cell.isOccupied()) {
                 CoordinateDTO coordinateToAttack = calculateBetterCoordinateToAttackFromCell(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid);
 
                 if (coordinateToAttack != null) {
-                    System.out.println("attack");
-                    System.out.println("x : " + coordinateToAttack.getX());
-                    System.out.println("y : " + coordinateToAttack.getY());
-
                     return coordinateToAttack;
                 }
             }
