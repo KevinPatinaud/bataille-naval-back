@@ -64,13 +64,6 @@ public class GameEngineService_impl implements GameEngineService {
             IdPlayer idPlayerAttacker = IdPlayer.valueOf(idPlayerAttacker_in.toUpperCase());
             IdPlayer idPlayerOpponent = getIdOpponent(idPlayerAttacker);
 
-
-            if (!idPlayerAttacker.equals(getIdNextPlayerToPlay(idGame))) {
-                System.out.println("for the game " + idGame + " player " + getIdNextPlayerToPlay(idGame) + " should play and not " + idPlayerAttacker);
-                return;
-            }
-
-
             revealeCell(idGame, idPlayerAttacker, idPlayerOpponent, xTargeted, yTargeted);
 
 
@@ -84,7 +77,7 @@ public class GameEngineService_impl implements GameEngineService {
 
 
     private void diffuseInformationAboutPlayer(String idGame, IdPlayer idPlayer) {
-        playerCommunicationService.diffuseRevealedCells(idGame, idPlayer, persistenceService.getRevealedCells(idGame, idPlayer), persistenceService.getBoats(idGame, idPlayer));
+        playerCommunicationService.diffuseRevealedCells(idGame, idPlayer, persistenceService.getRevealedCells(idGame, idPlayer));
         playerCommunicationService.diffuseBoatsStates(idGame, idPlayer, persistenceService.getBoats(idGame, idPlayer));
     }
 
@@ -95,9 +88,6 @@ public class GameEngineService_impl implements GameEngineService {
         playerCommunicationService.diffuseEndGame(idGame, endGameResult);
     }
 
-    private IdPlayer getIdNextPlayerToPlay(String idGame) {
-        return IdPlayer.PLAYER_1;
-    }
 
     private IdPlayer getIdOpponent(IdPlayer idPlayer) {
         return idPlayer.equals(IdPlayer.PLAYER_1) ? IdPlayer.PLAYER_2 : IdPlayer.PLAYER_1;

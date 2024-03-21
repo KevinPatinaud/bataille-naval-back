@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.patinaud.bataillecommunication.mapper.EndGameResultMapper;
 import com.patinaud.bataillecommunication.mapper.PlayerBoatsStatesMapper;
 import com.patinaud.bataillecommunication.mapper.PlayerCellsMapper;
-import com.patinaud.bataillecommunication.responsedata.PlayerCells;
 import com.patinaud.bataillemodel.constants.GameAction;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
@@ -16,7 +15,6 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 @Service
@@ -29,10 +27,10 @@ public class PlayerCommunicationService_impl implements PlayerCommunicationServi
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Override
-    public void diffuseRevealedCells(String idGame, IdPlayer idplayer, ArrayList<CellDTO> cells, ArrayList<BoatDTO> boats) {
+    public void diffuseRevealedCells(String idGame, IdPlayer idplayer, ArrayList<CellDTO> cells) {
         this.messagingTemplate.convertAndSend("/diffuse/" + idGame + "/" + GameAction.REVEALED_CELLS.getValue(),
                 gson.toJson(
-                        PlayerCellsMapper.fromDtoToResponse(idplayer, cells, boats)
+                        PlayerCellsMapper.fromDtosToResponses(idplayer, cells)
                 )
         );
     }

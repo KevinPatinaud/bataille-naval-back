@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface PlayerCommunicationService {
 
-    public void diffuseRevealedCells(String idGame, IdPlayer idplayer, ArrayList<CellDTO> cells, ArrayList<BoatDTO> boats);
+    public void diffuseRevealedCells(String idGame, IdPlayer idplayer, ArrayList<CellDTO> cells);
 
     public void diffuseEndGame(String idGame, EndGameResultDTO endGameResult);
 

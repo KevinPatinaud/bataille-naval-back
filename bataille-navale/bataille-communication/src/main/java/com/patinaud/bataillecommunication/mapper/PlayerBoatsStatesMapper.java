@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class PlayerBoatsStatesMapper {
     public static PlayerBoatsStates fromDtoToResponse(IdPlayer idPlayer, ArrayList<BoatDTO> boatsDtos) {
         PlayerBoatsStates playerBoatsStates = new PlayerBoatsStates();
+        playerBoatsStates.setIdPlayer(idPlayer);
 
         ArrayList<BoatState> boatsStates = new ArrayList();
 
@@ -21,7 +22,6 @@ public class PlayerBoatsStatesMapper {
         }
 
         playerBoatsStates.setBoatsStates(boatsStates);
-
         return playerBoatsStates;
     }
 }

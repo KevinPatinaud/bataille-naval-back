@@ -8,10 +8,9 @@ import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PlayerCellsMapper {
-    public static PlayerCells fromDtoToResponse(IdPlayer idplayer, ArrayList<CellDTO> dtoCells, ArrayList<BoatDTO> boats) {
+    public static PlayerCells fromDtosToResponses(IdPlayer idplayer, ArrayList<CellDTO> dtoCells) {
         PlayerCells playerCells = new PlayerCells();
 
         playerCells.setIdPlayer(idplayer);
@@ -22,7 +21,7 @@ public class PlayerCellsMapper {
             cell.setX(dtoCells.get(i).getX());
             cell.setY(dtoCells.get(i).getY());
 
-            cell.setCellContent(getCellContent(boats, cell.getX(), cell.getY()));
+            cell.setCellContent(dtoCells.get(i).isOccupied() ? CellContent.BOAT : CellContent.NOTHING);
 
             cells.add(cell);
         }
@@ -33,22 +32,4 @@ public class PlayerCellsMapper {
     }
 
 
-    public static CellContent getCellContent(ArrayList<BoatDTO> boats, int x, int y) {
-
-        for (int i = 0; i < boats.size(); i++) {
-            BoatDTO boat = boats.get(i);
-
-            int xBoat = boat.getxHead();
-            int yBoat = boat.getyHead();
-
-            for (int inc = 0; inc < boat.getBoatType().getSize(); inc++) {
-                if (x == xBoat + (boat.isHorizontal() ? inc : 0) && y == yBoat + (!boat.isHorizontal() ? inc : 0)) {
-                    return CellContent.BOAT;
-                }
-            }
-
-        }
-
-        return CellContent.NOTHING;
-    }
 }
