@@ -4,6 +4,9 @@ import com.patinaud.bataillecommunication.responsedata.EndGameResult;
 import com.patinaud.bataillemodel.dto.EndGameResultDTO;
 
 public class EndGameResultMapper {
+    private EndGameResultMapper() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static EndGameResult fromDtoToResponse(EndGameResultDTO dto) {
         EndGameResult endGame = new EndGameResult();

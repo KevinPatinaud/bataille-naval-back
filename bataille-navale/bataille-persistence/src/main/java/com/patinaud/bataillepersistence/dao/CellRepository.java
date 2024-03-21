@@ -2,15 +2,11 @@ package com.patinaud.bataillepersistence.dao;
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillepersistence.entity.Cell;
-import com.patinaud.bataillepersistence.entity.Game;
-import com.patinaud.bataillepersistence.entity.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public interface CellRepository extends JpaRepository<Cell, Long> {

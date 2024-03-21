@@ -1,10 +1,8 @@
 package com.patinaud.bataillecommunication.responsedata;
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
-import com.patinaud.bataillemodel.dto.CellDTO;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PlayerCells {
     private IdPlayer idPlayer;

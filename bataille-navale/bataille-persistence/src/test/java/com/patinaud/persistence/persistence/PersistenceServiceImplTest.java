@@ -29,7 +29,7 @@ import java.util.List;
 @ContextConfiguration(classes = {TestDatabaseConfiguration.class})
 @DirtiesContext
 @Transactional
-public class PersistenceServiceImplTest {
+class PersistenceServiceImplTest {
 
     @Autowired
     PersistenceServiceImpl persistenceServiceImpl;
@@ -79,7 +79,7 @@ public class PersistenceServiceImplTest {
         persistenceServiceImpl.initializeGame("ABCDE");
         List<Cell> cells = cellRepository.findCells("ABCDE", IdPlayer.PLAYER_1);
 
-        Assertions.assertEquals(cells.size(), 100);
+        Assertions.assertEquals(100, cells.size());
 
         for (int i = 0; i < cells.size(); i++) {
             Assertions.assertFalse(cells.get(i).isRevealed());
@@ -99,7 +99,7 @@ public class PersistenceServiceImplTest {
         persistenceServiceImpl.initializeGame("ABCDE");
         List<Cell> cells = cellRepository.findCells("ABCDE", IdPlayer.PLAYER_2);
 
-        Assertions.assertEquals(cells.size(), 100);
+        Assertions.assertEquals(100, cells.size());
 
         for (int i = 0; i < cells.size(); i++) {
             Assertions.assertFalse(cells.get(i).isRevealed());

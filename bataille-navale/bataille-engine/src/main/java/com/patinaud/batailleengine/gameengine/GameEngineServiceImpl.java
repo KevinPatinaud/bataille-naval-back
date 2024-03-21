@@ -13,16 +13,19 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
-public class GameEngineService_impl implements GameEngineService {
-    @Autowired
+public class GameEngineServiceImpl implements GameEngineService {
+
     PlayerCommunicationService playerCommunicationService;
-
-    @Autowired
     PersistenceService persistenceService;
-
-    @Autowired
     IaPlayerService iaPlayerService;
 
+    @Autowired
+    public GameEngineServiceImpl(PlayerCommunicationService playerCommunicationService, PersistenceService persistenceService, IaPlayerService iaPlayerService) {
+        this.playerCommunicationService = playerCommunicationService;
+        this.persistenceService = persistenceService;
+        this.iaPlayerService = iaPlayerService;
+
+    }
 
     public GameDTO generateNewGame() {
         // Génère un id unique
@@ -59,9 +62,9 @@ public class GameEngineService_impl implements GameEngineService {
     }
 
     @Override
-    public void playerAttack(String idGame, String idPlayerAttacker_in, int xTargeted, int yTargeted) {
+    public void playerAttack(String idGame, String idPlayerAttackerStr, int xTargeted, int yTargeted) {
         try {
-            IdPlayer idPlayerAttacker = IdPlayer.valueOf(idPlayerAttacker_in.toUpperCase());
+            IdPlayer idPlayerAttacker = IdPlayer.valueOf(idPlayerAttackerStr.toUpperCase());
             IdPlayer idPlayerOpponent = getIdOpponent(idPlayerAttacker);
 
             revealeCell(idGame, idPlayerAttacker, idPlayerOpponent, xTargeted, yTargeted);

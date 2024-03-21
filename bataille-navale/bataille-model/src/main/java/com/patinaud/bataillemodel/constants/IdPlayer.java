@@ -13,7 +13,4 @@ public enum IdPlayer {
         return value;
     }
 
-    public boolean equals(IdPlayer idPlayer2) {
-        return this.getValue().equals(idPlayer2.getValue());
-    }
 }

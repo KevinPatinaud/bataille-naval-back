@@ -6,7 +6,6 @@ import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.EndGameResultDTO;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public interface PlayerCommunicationService {
 

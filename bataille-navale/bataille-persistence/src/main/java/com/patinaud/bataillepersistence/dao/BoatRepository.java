@@ -4,7 +4,6 @@ package com.patinaud.bataillepersistence.dao;
 import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillepersistence.entity.Boat;
-import com.patinaud.bataillepersistence.entity.Cell;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

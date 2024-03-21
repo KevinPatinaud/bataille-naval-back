@@ -6,13 +6,13 @@ import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
-public class IaPlayerService_impl implements IaPlayerService {
+public class IaPlayerServiceImpl implements IaPlayerService {
+
+    private final Random random = new Random();
+
     @Override
     public ArrayList<BoatDTO> positionBoatOnGrid(List<BoatType> boatsToPositions, int widthGrid, int heigthGrid) {
 
@@ -28,13 +28,11 @@ public class IaPlayerService_impl implements IaPlayerService {
 
 
     public BoatDTO findAPositionForTheBoat(BoatType boatType, List<BoatDTO> alreadyPositionnedBoats, int widthGrid, int heigthGrid) {
-        Random random = new Random();
-
         int xHead = random.nextInt(widthGrid);
         int yHead = random.nextInt(heigthGrid);
         boolean isHorizontal = random.nextInt(2) == 0;
 
-        if (!theBoatIsPositionnedInsideTheGrid(boatType, xHead, yHead, isHorizontal, widthGrid, heigthGrid)) {
+        if (!theBoatIsPositionedInsideTheGrid(boatType, xHead, yHead, isHorizontal, widthGrid, heigthGrid)) {
             return findAPositionForTheBoat(boatType, alreadyPositionnedBoats, widthGrid, heigthGrid);
         }
 
@@ -53,7 +51,7 @@ public class IaPlayerService_impl implements IaPlayerService {
         return boat;
     }
 
-    public boolean theBoatIsPositionnedInsideTheGrid(BoatType boatType, int xHead, int yHead, boolean isHorizontal, int widthGrid, int heigthGrid) {
+    public boolean theBoatIsPositionedInsideTheGrid(BoatType boatType, int xHead, int yHead, boolean isHorizontal, int widthGrid, int heigthGrid) {
 
         if (xHead >= 0 && xHead < widthGrid && yHead >= 0 && yHead < heigthGrid) {
             if (isHorizontal && xHead + boatType.getSize() < widthGrid) {
@@ -67,18 +65,18 @@ public class IaPlayerService_impl implements IaPlayerService {
     }
 
     public boolean thePositionIsFree(BoatType boatType, List<BoatDTO> alreadyPositionnedBoats, int xHead, int yHead, boolean isHorizontal) {
-        // Vérifie que toutes les cellules occupées par le bateau sont libre
-        boolean allCellsAreFree = true;
+
+        boolean theCellIsFree = true;
         for (int i = 0; i < boatType.getSize(); i++) {
             int x = xHead + (isHorizontal ? i : 0);
             int y = yHead + (!isHorizontal ? i : 0);
 
             if (cellContainsABoat(alreadyPositionnedBoats, x, y)) {
-                allCellsAreFree = false;
+                theCellIsFree = false;
             }
         }
 
-        return allCellsAreFree;
+        return theCellIsFree;
     }
 
     public boolean cellContainsABoat(List<BoatDTO> boats, int xCell, int yCell) {
@@ -118,9 +116,9 @@ public class IaPlayerService_impl implements IaPlayerService {
 
     public CoordinateDTO calculBestCoordToAttack(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
 
-        Optional<CoordinateDTO> coordinateToAttack = cellsRevealed.stream().filter(cell -> cell.isOccupied())
-                .map((cell) -> calculBestCoordToAttackFromBoat(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid))
-                .filter(cell -> cell != null)
+        Optional<CoordinateDTO> coordinateToAttack = cellsRevealed.stream().filter(CellDTO::isOccupied)
+                .map(cell -> calculBestCoordToAttackFromBoat(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid))
+                .filter(Objects::nonNull)
                 .findFirst();
 
         if (coordinateToAttack.isPresent()) {
@@ -128,9 +126,9 @@ public class IaPlayerService_impl implements IaPlayerService {
         }
 
 
-        coordinateToAttack = cellsRevealed.stream().filter(cell -> cell.isOccupied())
-                .map((cell) -> calculBestCoordToAttackFromCloud(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid))
-                .filter(cell -> cell != null)
+        coordinateToAttack = cellsRevealed.stream().filter(CellDTO::isOccupied)
+                .map(cell -> calculBestCoordToAttackFromCloud(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid))
+                .filter(Objects::nonNull)
                 .findFirst();
 
         if (coordinateToAttack.isPresent()) {
@@ -142,10 +140,8 @@ public class IaPlayerService_impl implements IaPlayerService {
 
 
     public CoordinateDTO randomlyTargetACoveredCell(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
-        Random random = new Random();
-
         int xRand = random.nextInt(widthGrid);
-        int yRand = random.nextInt(widthGrid);
+        int yRand = random.nextInt(heigthGrid);
         if (cellsRevealed != null) {
             while (getCellByCoordinate(cellsRevealed, xRand, yRand) != null) {
                 xRand = random.nextInt(widthGrid);
@@ -175,6 +171,28 @@ public class IaPlayerService_impl implements IaPlayerService {
     }
 
 
+    public boolean isInGrid(int x, int y, int widthGrid, int heigthGrid) {
+        return x >= 0 && x < widthGrid && y >= 0 && y < heigthGrid;
+    }
+
+
+    public CoordinateDTO calculBestCoordToAttackFromBoatChooseCell(int xTargeted, int xTargetedOpposit, int yTargeted, int yTargetedOpposite, ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
+        if (
+                isInGrid(xTargeted, yTargeted, widthGrid, heigthGrid) &&
+                        getCellByCoordinate(cellsRevealed, xTargeted, yTargeted) == null
+        ) {
+            return new CoordinateDTO(xTargeted, yTargeted);
+        }
+        if (
+                isInGrid(xTargetedOpposit, yTargetedOpposite, widthGrid, heigthGrid) &&
+                        getCellByCoordinate(cellsRevealed, xTargetedOpposit, yTargetedOpposite) == null
+        ) {
+            return new CoordinateDTO(xTargetedOpposit, yTargetedOpposite);
+        }
+
+        return null;
+    }
+
     public CoordinateDTO calculBestCoordToAttackFromBoat(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heigthGrid) {
 
 
@@ -185,40 +203,36 @@ public class IaPlayerService_impl implements IaPlayerService {
 
 
         if (nmbBoatCellRight > 1) {
-            if (x + nmbBoatCellRight < widthGrid && getCellByCoordinate(cellsRevealed, x + nmbBoatCellRight, y) == null) {
-                return new CoordinateDTO(x + nmbBoatCellRight, y);
-            }
-            if (x - nmbBoatCellLeft >= 0 && getCellByCoordinate(cellsRevealed, x - nmbBoatCellLeft, y) == null) {
-                return new CoordinateDTO(x - nmbBoatCellLeft, y);
+            CoordinateDTO coordinateTarget = calculBestCoordToAttackFromBoatChooseCell(x + nmbBoatCellRight, x - nmbBoatCellLeft, y, y, cellsRevealed, widthGrid, heigthGrid);
+
+            if (coordinateTarget != null) {
+                return coordinateTarget;
             }
         }
 
         if (nmbBoatCellLeft > 1) {
-            if (x - nmbBoatCellLeft >= 0 && getCellByCoordinate(cellsRevealed, x - nmbBoatCellLeft, y) == null) {
-                return new CoordinateDTO(x - nmbBoatCellLeft, y);
-            }
-            if (x + nmbBoatCellRight < widthGrid && getCellByCoordinate(cellsRevealed, x + nmbBoatCellRight, y) == null) {
-                return new CoordinateDTO(x + nmbBoatCellRight, y);
+            CoordinateDTO coordinateTarget = calculBestCoordToAttackFromBoatChooseCell(x - nmbBoatCellLeft, x + nmbBoatCellRight, y, y, cellsRevealed, widthGrid, heigthGrid);
+
+            if (coordinateTarget != null) {
+                return coordinateTarget;
             }
         }
 
 
         if (nmbBoatCellBottom > 1) {
-            if (y + nmbBoatCellBottom < heigthGrid && getCellByCoordinate(cellsRevealed, x, y + nmbBoatCellBottom) == null) {
-                return new CoordinateDTO(x, y + nmbBoatCellBottom);
-            }
-            if (y - nmbBoatCellTop > 0 && getCellByCoordinate(cellsRevealed, x, y - nmbBoatCellTop) == null) {
-                return new CoordinateDTO(x, y - nmbBoatCellTop);
+            CoordinateDTO coordinateTarget = calculBestCoordToAttackFromBoatChooseCell(x, x, y + nmbBoatCellBottom, y - nmbBoatCellTop, cellsRevealed, widthGrid, heigthGrid);
+
+            if (coordinateTarget != null) {
+                return coordinateTarget;
             }
         }
 
 
         if (nmbBoatCellTop > 1) {
-            if (y - nmbBoatCellTop >= 0 && getCellByCoordinate(cellsRevealed, x, y - nmbBoatCellTop) == null) {
-                return new CoordinateDTO(x, y - nmbBoatCellTop);
-            }
-            if (y + nmbBoatCellBottom < heigthGrid && getCellByCoordinate(cellsRevealed, x, y + nmbBoatCellBottom) == null) {
-                return new CoordinateDTO(x, y + nmbBoatCellBottom);
+            CoordinateDTO coordinateTarget = calculBestCoordToAttackFromBoatChooseCell(x, x, y - nmbBoatCellTop, y + nmbBoatCellBottom, cellsRevealed, widthGrid, heigthGrid);
+
+            if (coordinateTarget != null) {
+                return coordinateTarget;
             }
         }
 

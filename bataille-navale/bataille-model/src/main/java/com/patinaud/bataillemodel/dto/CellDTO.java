@@ -1,6 +1,5 @@
 package com.patinaud.bataillemodel.dto;
 
-import com.patinaud.bataillemodel.constants.CellContent;
 
 public class CellDTO {
     private int x;

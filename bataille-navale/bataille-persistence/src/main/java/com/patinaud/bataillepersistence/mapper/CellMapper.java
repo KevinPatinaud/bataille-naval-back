@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class CellMapper {
+    private CellMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static ArrayList<CellDTO> toDtos(ArrayList<Cell> cells) {
         return cells.stream().map(c -> toDto(c)).collect(Collectors.toCollection(ArrayList::new));
     }

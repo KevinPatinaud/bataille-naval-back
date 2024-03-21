@@ -14,7 +14,7 @@ public class Player {
     @JoinColumn(name = "game")
     private Game game;
 
-    
+
     @Column(name = "id_player")
     private IdPlayer idPlayer;
 
@@ -48,7 +48,7 @@ public class Player {
         return isIA;
     }
 
-    public void setIA(boolean IA) {
-        isIA = IA;
+    public void setIA(boolean isIa) {
+        this.isIA = isIa;
     }
 }

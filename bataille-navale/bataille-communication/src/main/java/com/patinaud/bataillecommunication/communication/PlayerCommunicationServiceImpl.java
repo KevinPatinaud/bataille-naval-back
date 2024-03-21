@@ -18,17 +18,24 @@ import java.util.ArrayList;
 
 
 @Service
-public class PlayerCommunicationService_impl implements PlayerCommunicationService {
+public class PlayerCommunicationServiceImpl implements PlayerCommunicationService {
 
-    @Autowired
+    private static final String DIFFUSE_PATH = "/diffuse/";
+
+
     private SimpMessageSendingOperations messagingTemplate;
 
+
+    @Autowired
+    public PlayerCommunicationServiceImpl(SimpMessageSendingOperations messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Override
     public void diffuseRevealedCells(String idGame, IdPlayer idplayer, ArrayList<CellDTO> cells) {
-        this.messagingTemplate.convertAndSend("/diffuse/" + idGame + "/" + GameAction.REVEALED_CELLS.getValue(),
+        this.messagingTemplate.convertAndSend(DIFFUSE_PATH + idGame + "/" + GameAction.REVEALED_CELLS.getValue(),
                 gson.toJson(
                         PlayerCellsMapper.fromDtosToResponses(idplayer, cells)
                 )
@@ -37,7 +44,7 @@ public class PlayerCommunicationService_impl implements PlayerCommunicationServi
 
     @Override
     public void diffuseEndGame(String idGame, EndGameResultDTO endGameResult) {
-        this.messagingTemplate.convertAndSend("/diffuse/" + idGame + "/" + GameAction.END_GAME.getValue(),
+        this.messagingTemplate.convertAndSend(DIFFUSE_PATH + idGame + "/" + GameAction.END_GAME.getValue(),
                 gson.toJson(
                         EndGameResultMapper.fromDtoToResponse(endGameResult)
                 )
@@ -46,7 +53,7 @@ public class PlayerCommunicationService_impl implements PlayerCommunicationServi
 
     @Override
     public void diffuseBoatsStates(String idGame, IdPlayer idPlayer, ArrayList<BoatDTO> boats) {
-        this.messagingTemplate.convertAndSend("/diffuse/" + idGame + "/" + GameAction.BOATS_STATES.getValue(),
+        this.messagingTemplate.convertAndSend(DIFFUSE_PATH + idGame + "/" + GameAction.BOATS_STATES.getValue(),
                 gson.toJson(
                         PlayerBoatsStatesMapper.fromDtoToResponse(idPlayer, boats)
                 )

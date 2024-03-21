@@ -11,6 +11,6 @@ public interface GameEngineService {
 
     void positionHumanPlayerBoat(String idGame, ArrayList<BoatDTO> boats);
 
-    void playerAttack(String idGame, String idPlayerAttacker_in, int xTargeted, int yTargeted);
+    void playerAttack(String idGame, String idPlayerAttackerStr, int xTargeted, int yTargeted);
 
 }

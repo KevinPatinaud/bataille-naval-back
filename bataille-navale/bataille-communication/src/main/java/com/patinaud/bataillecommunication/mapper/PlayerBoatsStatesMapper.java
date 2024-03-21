@@ -8,11 +8,15 @@ import com.patinaud.bataillemodel.dto.BoatDTO;
 import java.util.ArrayList;
 
 public class PlayerBoatsStatesMapper {
+    private PlayerBoatsStatesMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static PlayerBoatsStates fromDtoToResponse(IdPlayer idPlayer, ArrayList<BoatDTO> boatsDtos) {
         PlayerBoatsStates playerBoatsStates = new PlayerBoatsStates();
         playerBoatsStates.setIdPlayer(idPlayer);
 
-        ArrayList<BoatState> boatsStates = new ArrayList();
+        ArrayList<BoatState> boatsStates = new ArrayList<>();
 
         for (int i = 0; i < boatsDtos.size(); i++) {
             BoatState boatState = new BoatState();

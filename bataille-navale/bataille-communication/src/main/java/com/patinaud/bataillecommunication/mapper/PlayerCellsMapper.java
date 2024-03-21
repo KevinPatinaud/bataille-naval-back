@@ -4,12 +4,15 @@ import com.patinaud.bataillecommunication.responsedata.Cell;
 import com.patinaud.bataillecommunication.responsedata.PlayerCells;
 import com.patinaud.bataillemodel.constants.CellContent;
 import com.patinaud.bataillemodel.constants.IdPlayer;
-import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
 
 import java.util.ArrayList;
 
 public class PlayerCellsMapper {
+    private PlayerCellsMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static PlayerCells fromDtosToResponses(IdPlayer idplayer, ArrayList<CellDTO> dtoCells) {
         PlayerCells playerCells = new PlayerCells();
 

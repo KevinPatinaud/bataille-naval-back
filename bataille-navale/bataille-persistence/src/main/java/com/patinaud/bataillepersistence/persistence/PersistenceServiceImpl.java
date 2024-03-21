@@ -1,11 +1,9 @@
 package com.patinaud.bataillepersistence.persistence;
 
-import com.patinaud.bataillemodel.constants.BoatType;
-import com.patinaud.bataillemodel.constants.CellContent;
+
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
-import com.patinaud.bataillemodel.dto.GameDTO;
 import com.patinaud.bataillepersistence.dao.BoatRepository;
 import com.patinaud.bataillepersistence.dao.CellRepository;
 import com.patinaud.bataillepersistence.dao.GameRepository;
@@ -25,19 +23,21 @@ import java.util.ArrayList;
 public class PersistenceServiceImpl implements PersistenceService {
 
 
-    @Autowired
     GameRepository gameRepository;
 
-    @Autowired
     PlayerRepository playerRepository;
 
-    @Autowired
     CellRepository cellRepository;
 
-
-    @Autowired
     BoatRepository boatRepository;
 
+    @Autowired
+    public PersistenceServiceImpl(GameRepository gameRepository, PlayerRepository playerRepository, CellRepository cellRepository, BoatRepository boatRepository) {
+        this.gameRepository = gameRepository;
+        this.playerRepository = playerRepository;
+        this.cellRepository = cellRepository;
+        this.boatRepository = boatRepository;
+    }
 
     public void initializeGame(String idGame) {
 
@@ -163,31 +163,33 @@ public class PersistenceServiceImpl implements PersistenceService {
         for (int i = 0; i < boats.size(); i++) {
             Boat boat = boats.get(i);
 
-            int xBoatHead = boat.getxHead();
-            int yBoatHead = boat.getyHead();
-
-            boolean boatDestroyed = true;
-
-            for (int inc = 0; inc < boat.getBoatType().getSize(); inc++) {
-                boolean boatCellTouched = false;
-
-                for (int iRevCell = 0; iRevCell < revealedCells.size(); iRevCell++) {
-
-                    if (revealedCells.get(iRevCell).getX() == xBoatHead + (boat.isHorizontal() ? inc : 0) && revealedCells.get(iRevCell).getY() == yBoatHead + (!boat.isHorizontal() ? inc : 0)) {
-                        boatCellTouched = true;
-                    }
-                }
-                if (!boatCellTouched) {
-                    boatDestroyed = false;
-                }
-            }
-
-            if (boatDestroyed) {
+            if (isBoatDestroyed(boat, revealedCells)) {
                 boat.setDestroyed(true);
                 boatRepository.save(boat);
             }
 
         }
+    }
+
+    public boolean isBoatDestroyed(Boat boat, ArrayList<Cell> revealedCells) {
+
+        int xBoatHead = boat.getxHead();
+        int yBoatHead = boat.getyHead();
+
+        for (int inc = 0; inc < boat.getBoatType().getSize(); inc++) {
+            boolean boatCellTouched = false;
+
+            for (int iRevCell = 0; iRevCell < revealedCells.size(); iRevCell++) {
+
+                if (revealedCells.get(iRevCell).getX() == xBoatHead + (boat.isHorizontal() ? inc : 0) && revealedCells.get(iRevCell).getY() == yBoatHead + (!boat.isHorizontal() ? inc : 0)) {
+                    boatCellTouched = true;
+                }
+            }
+            if (!boatCellTouched) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

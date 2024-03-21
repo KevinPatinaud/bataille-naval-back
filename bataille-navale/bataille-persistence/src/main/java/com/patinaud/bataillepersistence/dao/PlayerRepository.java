@@ -1,7 +1,6 @@
 package com.patinaud.bataillepersistence.dao;
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
-import com.patinaud.bataillepersistence.entity.Game;
 import com.patinaud.bataillepersistence.entity.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

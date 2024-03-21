@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class BoatMapper {
+    private BoatMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static ArrayList<Boat> toEntities(ArrayList<BoatDTO> boatsDtos, Player player) {
         return boatsDtos.stream().map(c -> toEntity(c, player)).collect(Collectors.toCollection(ArrayList::new));
     }

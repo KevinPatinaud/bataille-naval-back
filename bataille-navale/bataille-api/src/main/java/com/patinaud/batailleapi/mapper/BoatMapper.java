@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BoatMapper {
+    private BoatMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static ArrayList<BoatDTO> toDtos(List<Boat> boats) {
 
         return boats.stream().map(b -> toDto(b)).collect(Collectors.toCollection(ArrayList::new));
