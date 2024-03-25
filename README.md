@@ -1,5 +1,3 @@
-# Domination navale
-
 ![affiche jeu](./assets/Affiche.png)
 [![Lancer une partie](./assets/button_start.png)](http://la-bataille-navale.fr/)
 
