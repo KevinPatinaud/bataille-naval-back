@@ -139,19 +139,50 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
 
-    public CoordinateDTO randomlyTargetACoveredCell(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
-        int xRand = random.nextInt(widthGrid);
-        int yRand = random.nextInt(heigthGrid);
-        if (cellsRevealed != null) {
-            while (getCellByCoordinate(cellsRevealed, xRand, yRand) != null) {
-                xRand = random.nextInt(widthGrid);
-                yRand = random.nextInt(widthGrid);
+    public CoordinateDTO randomlyTargetACoveredCell(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heightGrid) {
+
+        ArrayList<PonderationCell> ponderations = new ArrayList<>();
+        int totalWeight = 0;
+
+        for (int iX = 0; iX < widthGrid; iX++) {
+            for (int iY = 0; iY < heightGrid; iY++) {
+                if (getCellByCoordinate(cellsRevealed, iX, iY) == null) {
+
+                    int weight = calculateWeight(cellsRevealed, iX, iY, widthGrid, heightGrid);
+
+                    if (weight > 1) {
+                        totalWeight = totalWeight + weight;
+                        ponderations.add(new PonderationCell(weight, iX, iY));
+                    }
+                }
             }
         }
 
-        return new CoordinateDTO(xRand, yRand);
+
+        int indexWeightCell = random.nextInt(totalWeight);
+        int recoveryWeight = 0;
+        for (int i = 0; i < ponderations.size(); i++) {
+            recoveryWeight = recoveryWeight + ponderations.get(i).getWeight();
+
+            if (recoveryWeight > indexWeightCell) {
+                return new CoordinateDTO(ponderations.get(i).getX(), ponderations.get(i).getY());
+            }
+        }
+
+        return null;
     }
 
+
+    private int calculateWeight(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heightGrid) {
+        int weight = 1;
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] dir : directions) {
+            if (isInGrid(x + dir[0], y + dir[1], widthGrid, heightGrid) && getCellByCoordinate(cellsRevealed, x + dir[0], y + dir[1]) == null) {
+                weight *= 2;
+            }
+        }
+        return weight;
+    }
 
     public int countNumberOfCellBoat(ArrayList<CellDTO> cellsRevealed, int xInit, int yInit, int evolveX, int evolveY, int widthGrid, int heigthGrid) {
         int inc = 0;
@@ -241,7 +272,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
 
     public CoordinateDTO calculBestCoordToAttackFromCloud(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heightGrid) {
-        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int[][] directions = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 
         for (int[] dir : directions) {
             int newX = x + dir[0];
@@ -256,6 +287,10 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
     public CellDTO getCellByCoordinate(ArrayList<CellDTO> cells, int x, int y) {
+        if (cells == null) {
+            return null;
+        }
+
         Optional<CellDTO> result = cells.stream().filter(c -> c.getX() == x && c.getY() == y).findFirst();
         if (result.isPresent()) {
             return result.get();

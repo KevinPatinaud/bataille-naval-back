@@ -25,13 +25,13 @@ public class PlayerCommunicationServiceImpl implements PlayerCommunicationServic
 
     private SimpMessageSendingOperations messagingTemplate;
 
+    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Autowired
     public PlayerCommunicationServiceImpl(SimpMessageSendingOperations messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
 
-    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Override
     public void diffuseRevealedCells(String idGame, IdPlayer idplayer, ArrayList<CellDTO> cells) {

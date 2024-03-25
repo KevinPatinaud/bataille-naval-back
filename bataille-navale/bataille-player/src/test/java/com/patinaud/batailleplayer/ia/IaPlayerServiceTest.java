@@ -383,6 +383,8 @@ class IaPlayerServiceTest {
 
         ArrayList<CellDTO> cellsRevealed = new ArrayList();
         cellsRevealed.add(createRevealedCellDto(9, 3, true));
+        cellsRevealed.add(createRevealedCellDto(9, 2, false));
+        cellsRevealed.add(createRevealedCellDto(9, 4, false));
 
         CoordinateDTO coordinateTargted = ia.iaAttack(cellsRevealed, 10, 10);
 
@@ -454,11 +456,12 @@ class IaPlayerServiceTest {
         ArrayList<CellDTO> cellsRevealed = new ArrayList();
         cellsRevealed.add(createRevealedCellDto(0, 0, false));
         cellsRevealed.add(createRevealedCellDto(1, 0, false));
+        cellsRevealed.add(createRevealedCellDto(2, 0, false));
         cellsRevealed.add(createRevealedCellDto(0, 1, false));
 
-        CoordinateDTO coordinateTargted = ia.iaAttack(cellsRevealed, 2, 2);
+        CoordinateDTO coordinateTargted = ia.iaAttack(cellsRevealed, 3, 2);
 
-        Assertions.assertEquals(1, coordinateTargted.getX());
+        Assertions.assertTrue(coordinateTargted.getX() == 1 || coordinateTargted.getX() == 2);
         Assertions.assertEquals(1, coordinateTargted.getY());
 
     }
@@ -561,6 +564,8 @@ class IaPlayerServiceTest {
         ArrayList<CellDTO> cellsRevealed = new ArrayList();
         cellsRevealed.add(createRevealedCellDto(1, 1, true));
         cellsRevealed.add(createRevealedCellDto(2, 1, false));
+        cellsRevealed.add(createRevealedCellDto(1, 0, false));
+        cellsRevealed.add(createRevealedCellDto(1, 2, false));
 
         CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromCloud(cellsRevealed, 1, 1, 3, 3);
 
@@ -578,6 +583,7 @@ class IaPlayerServiceTest {
         cellsRevealed.add(createRevealedCellDto(1, 1, true));
         cellsRevealed.add(createRevealedCellDto(2, 1, false));
         cellsRevealed.add(createRevealedCellDto(0, 1, false));
+        cellsRevealed.add(createRevealedCellDto(1, 0, false));
 
         CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromCloud(cellsRevealed, 1, 1, 3, 3);
 

@@ -61,9 +61,11 @@ public class GameEngineServiceImpl implements GameEngineService {
         persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_1, boats);
     }
 
+
     @Override
     public void playerAttack(String idGame, String idPlayerAttackerStr, int xTargeted, int yTargeted) {
         try {
+
             IdPlayer idPlayerAttacker = IdPlayer.valueOf(idPlayerAttackerStr.toUpperCase());
             IdPlayer idPlayerOpponent = getIdOpponent(idPlayerAttacker);
 

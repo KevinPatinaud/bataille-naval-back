@@ -1,0 +1,9 @@
+CREATE DATABASE bataille
+OWNER utilisateur
+ENCODING 'UTF8'
+LC_COLLATE = 'en_US.utf8'
+LC_CTYPE = 'en_US.utf8'
+CONNECTION LIMIT 10;
+
+
+CREATE SCHEMA bataille AUTHORIZATION utilisateur;
