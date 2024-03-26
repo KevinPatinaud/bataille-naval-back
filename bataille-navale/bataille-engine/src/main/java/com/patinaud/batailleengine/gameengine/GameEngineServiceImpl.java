@@ -138,8 +138,8 @@ public class GameEngineServiceImpl implements GameEngineService {
 
 
     private void iaPlay(String idGame, IdPlayer idIaPlayer, IdPlayer idPlayerTargeted) {
-        ArrayList<CellDTO> cells = persistenceService.getRevealedCells(idGame, idPlayerTargeted);
-        CoordinateDTO coordinateToReveal = iaPlayerService.iaAttack(cells, 10, 10);
+        GridDTO grid = persistenceService.getGrid(idGame, idPlayerTargeted);
+        CoordinateDTO coordinateToReveal = iaPlayerService.iaAttack(grid);
         revealeCell(idGame, idIaPlayer, idPlayerTargeted, coordinateToReveal.getX(), coordinateToReveal.getY());
 
     }

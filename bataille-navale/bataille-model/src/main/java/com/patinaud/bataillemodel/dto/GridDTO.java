@@ -27,21 +27,30 @@ public class GridDTO {
         return 0;
     }
 
-    public boolean isInGrid(int x, int y) {
+    public boolean isInTheGrid(int x, int y) {
         return cells != null && x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
     }
 
+    public boolean isInTheGrid(CoordinateDTO coordinate) {
+        return isInTheGrid(coordinate.getX(), coordinate.getY());
+    }
+
     public CellDTO getCell(int x, int y) {
-        if (isInGrid(x, y)) {
+        if (isInTheGrid(x, y)) {
             return cells.get(x).get(y);
         }
         return null;
     }
 
-    public void updateCell(int x, int y, CellDTO cell) {
-        if (isInGrid(x, y)) {
-            cells.get(x).set(y, cell);
+    public CellDTO getCell(CoordinateDTO coordinate) {
+        return getCell(coordinate.getX(), coordinate.getY());
+    }
+
+    public void updateCell(CellDTO cell) {
+        if (isInTheGrid(cell.getX(), cell.getY())) {
+            cells.get(cell.getX()).set(cell.getY(), cell);
         }
     }
+
 
 }

@@ -103,21 +103,21 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
 
-    public CoordinateDTO iaAttack(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
+    public CoordinateDTO iaAttack(GridDTO grid) {
 
-        CoordinateDTO coordinateToAttack = calculBestCoordToAttack(cellsRevealed, widthGrid, heigthGrid);
+        CoordinateDTO coordinateToAttack = calculBestCoordToAttack(grid);
         if (coordinateToAttack == null) {
-            coordinateToAttack = randomlyTargetACoveredCell(cellsRevealed, widthGrid, heigthGrid);
+            coordinateToAttack = randomlyTargetACoveredCell(grid);
         }
 
         return coordinateToAttack;
     }
 
 
-    public CoordinateDTO calculBestCoordToAttack(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
+    public CoordinateDTO calculBestCoordToAttack(GridDTO grid) {
 
-        Optional<CoordinateDTO> coordinateToAttack = cellsRevealed.stream().filter(CellDTO::isOccupied)
-                .map(cell -> calculBestCoordToAttackFromBoat(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid))
+        Optional<CoordinateDTO> coordinateToAttack = grid.getCells().stream().flatMap(List::stream).filter(cell -> cell.isRevealed() && cell.isOccupied())
+                .map(cell -> calculBestCoordToAttackFromAtLeastTwoRevealedBoatCell(grid, cell))
                 .filter(Objects::nonNull)
                 .findFirst();
 
@@ -126,8 +126,8 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         }
 
 
-        coordinateToAttack = cellsRevealed.stream().filter(CellDTO::isOccupied)
-                .map(cell -> calculBestCoordToAttackFromCloud(cellsRevealed, cell.getX(), cell.getY(), widthGrid, heigthGrid))
+        coordinateToAttack = grid.getCells().stream().flatMap(List::stream).filter(cell -> cell.isRevealed() && cell.isOccupied())
+                .map(cell -> calculBestCoordToAttackFromOneUncoverBoatCell(grid, cell))
                 .filter(Objects::nonNull)
                 .findFirst();
 
@@ -139,20 +139,20 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
 
-    public CoordinateDTO randomlyTargetACoveredCell(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heightGrid) {
+    public CoordinateDTO randomlyTargetACoveredCell(GridDTO grid) {
 
         ArrayList<PonderationCell> ponderations = new ArrayList<>();
         int totalWeight = 0;
 
-        for (int iX = 0; iX < widthGrid; iX++) {
-            for (int iY = 0; iY < heightGrid; iY++) {
-                if (getCellByCoordinate(cellsRevealed, iX, iY) == null) {
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+                if (!grid.getCell(x, y).isRevealed()) {
 
-                    int weight = calculateWeight(cellsRevealed, iX, iY, widthGrid, heightGrid);
+                    int weight = calculateWeight(grid, x, y);
 
                     if (weight > 1) {
                         totalWeight = totalWeight + weight;
-                        ponderations.add(new PonderationCell(weight, iX, iY));
+                        ponderations.add(new PonderationCell(weight, x, y));
                     }
                 }
             }
@@ -173,68 +173,28 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
 
-    private int calculateWeight(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heightGrid) {
+    private int calculateWeight(GridDTO grid, int x, int y) {
         int weight = 1;
         int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         for (int[] dir : directions) {
-            if (isInGrid(x + dir[0], y + dir[1], widthGrid, heightGrid) && getCellByCoordinate(cellsRevealed, x + dir[0], y + dir[1]) == null) {
+            if (grid.isInTheGrid(x + dir[0], y + dir[1]) && !grid.getCell(x + dir[0], y + dir[1]).isRevealed()) {
                 weight *= 2;
             }
         }
         return weight;
     }
 
-    public int countNumberOfCellBoat(ArrayList<CellDTO> cellsRevealed, int xInit, int yInit, int evolveX, int evolveY, int widthGrid, int heigthGrid) {
-        int inc = 0;
-        int x = xInit + evolveX * inc;
-        int y = yInit + evolveY * inc;
 
-        while (
-                x >= 0 && x < widthGrid &&
-                        y >= 0 && y < heigthGrid &&
-                        getCellByCoordinate(cellsRevealed, x, y) != null &&
-                        getCellByCoordinate(cellsRevealed, x, y).isOccupied()) {
-            inc++;
-            x = xInit + evolveX * inc;
-            y = yInit + evolveY * inc;
-        }
-        return inc;
-    }
+    public CoordinateDTO calculBestCoordToAttackFromAtLeastTwoRevealedBoatCell(GridDTO grid, CellDTO cell) {
 
-
-    public boolean isInGrid(int x, int y, int widthGrid, int heigthGrid) {
-        return x >= 0 && x < widthGrid && y >= 0 && y < heigthGrid;
-    }
-
-
-    public CoordinateDTO calculBestCoordToAttackFromBoatChooseCell(int xTargeted, int xTargetedOpposit, int yTargeted, int yTargetedOpposite, ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid) {
-        if (
-                isInGrid(xTargeted, yTargeted, widthGrid, heigthGrid) &&
-                        getCellByCoordinate(cellsRevealed, xTargeted, yTargeted) == null
-        ) {
-            return new CoordinateDTO(xTargeted, yTargeted);
-        }
-        if (
-                isInGrid(xTargetedOpposit, yTargetedOpposite, widthGrid, heigthGrid) &&
-                        getCellByCoordinate(cellsRevealed, xTargetedOpposit, yTargetedOpposite) == null
-        ) {
-            return new CoordinateDTO(xTargetedOpposit, yTargetedOpposite);
-        }
-
-        return null;
-    }
-
-    public CoordinateDTO calculBestCoordToAttackFromBoat(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heigthGrid) {
-
-
-        int nmbBoatCellRight = countNumberOfCellBoat(cellsRevealed, x, y, 1, 0, widthGrid, heigthGrid);
-        int nmbBoatCellLeft = countNumberOfCellBoat(cellsRevealed, x, y, -1, 0, widthGrid, heigthGrid);
-        int nmbBoatCellBottom = countNumberOfCellBoat(cellsRevealed, x, y, 0, 1, widthGrid, heigthGrid);
-        int nmbBoatCellTop = countNumberOfCellBoat(cellsRevealed, x, y, 0, -1, widthGrid, heigthGrid);
+        int nmbBoatCellRight = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, 1, 0);
+        int nmbBoatCellLeft = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, -1, 0);
+        int nmbBoatCellBottom = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, 0, 1);
+        int nmbBoatCellTop = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, 0, -1);
 
 
         if (nmbBoatCellRight > 1) {
-            CoordinateDTO coordinateTarget = calculBestCoordToAttackFromBoatChooseCell(x + nmbBoatCellRight, x - nmbBoatCellLeft, y, y, cellsRevealed, widthGrid, heigthGrid);
+            CoordinateDTO coordinateTarget = chooseABetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX() + nmbBoatCellRight, cell.getY()), new CoordinateDTO(cell.getX() - nmbBoatCellLeft, cell.getY()), grid);
 
             if (coordinateTarget != null) {
                 return coordinateTarget;
@@ -242,7 +202,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         }
 
         if (nmbBoatCellLeft > 1) {
-            CoordinateDTO coordinateTarget = calculBestCoordToAttackFromBoatChooseCell(x - nmbBoatCellLeft, x + nmbBoatCellRight, y, y, cellsRevealed, widthGrid, heigthGrid);
+            CoordinateDTO coordinateTarget = chooseABetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX() - nmbBoatCellLeft, cell.getY()), new CoordinateDTO(cell.getX() + nmbBoatCellRight, cell.getY()), grid);
 
             if (coordinateTarget != null) {
                 return coordinateTarget;
@@ -251,7 +211,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
 
         if (nmbBoatCellBottom > 1) {
-            CoordinateDTO coordinateTarget = calculBestCoordToAttackFromBoatChooseCell(x, x, y + nmbBoatCellBottom, y - nmbBoatCellTop, cellsRevealed, widthGrid, heigthGrid);
+            CoordinateDTO coordinateTarget = chooseABetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), grid);
 
             if (coordinateTarget != null) {
                 return coordinateTarget;
@@ -260,7 +220,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
 
         if (nmbBoatCellTop > 1) {
-            CoordinateDTO coordinateTarget = calculBestCoordToAttackFromBoatChooseCell(x, x, y - nmbBoatCellTop, y + nmbBoatCellBottom, cellsRevealed, widthGrid, heigthGrid);
+            CoordinateDTO coordinateTarget = chooseABetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), grid);
 
             if (coordinateTarget != null) {
                 return coordinateTarget;
@@ -271,15 +231,48 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
 
-    public CoordinateDTO calculBestCoordToAttackFromCloud(ArrayList<CellDTO> cellsRevealed, int x, int y, int widthGrid, int heightGrid) {
+    public int countNumberOfCellBoatFromRevealedBoatCell(GridDTO grid, CellDTO cell, int evolveX, int evolveY) {
+        int inc = 0;
+        int x = cell.getX() + evolveX * inc;
+        int y = cell.getY() + evolveY * inc;
+
+        while (
+                grid.isInTheGrid(x, y) &&
+                        grid.getCell(x, y).isOccupied()) {
+            inc++;
+            x = cell.getX() + evolveX * inc;
+            y = cell.getY() + evolveY * inc;
+        }
+        return inc;
+    }
+
+
+    public CoordinateDTO chooseABetterCellToAttackBetweenTwo(CoordinateDTO coordinateCellInDirection, CoordinateDTO coordinateCellInOppositeDirection, GridDTO grid) {
+        if (
+                grid.isInTheGrid(coordinateCellInDirection) &&
+                        !grid.getCell(coordinateCellInDirection).isRevealed()
+        ) {
+            return coordinateCellInDirection;
+        }
+        if (
+                grid.isInTheGrid(coordinateCellInOppositeDirection) &&
+                        !grid.getCell(coordinateCellInOppositeDirection).isRevealed()
+        ) {
+            return coordinateCellInOppositeDirection;
+        }
+
+        return null;
+    }
+
+    public CoordinateDTO calculBestCoordToAttackFromOneUncoverBoatCell(GridDTO grid, CellDTO cell) {
         int[][] directions = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 
         for (int[] dir : directions) {
-            int newX = x + dir[0];
-            int newY = y + dir[1];
+            int targetX = cell.getX() + dir[0];
+            int targetY = cell.getY() + dir[1];
 
-            if (newX >= 0 && newX < widthGrid && newY >= 0 && newY < heightGrid && getCellByCoordinate(cellsRevealed, newX, newY) == null) {
-                return new CoordinateDTO(newX, newY);
+            if (grid.isInTheGrid(targetX, targetY) && !grid.getCell(targetX, targetY).isRevealed()) {
+                return new CoordinateDTO(targetX, targetY);
             }
         }
 

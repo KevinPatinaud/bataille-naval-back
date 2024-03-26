@@ -4,6 +4,7 @@ package com.patinaud.bataillepersistence.persistence;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
+import com.patinaud.bataillemodel.dto.GridDTO;
 import com.patinaud.bataillepersistence.dao.BoatRepository;
 import com.patinaud.bataillepersistence.dao.CellRepository;
 import com.patinaud.bataillepersistence.dao.GameRepository;
@@ -14,6 +15,7 @@ import com.patinaud.bataillepersistence.entity.Game;
 import com.patinaud.bataillepersistence.entity.Player;
 import com.patinaud.bataillepersistence.mapper.BoatMapper;
 import com.patinaud.bataillepersistence.mapper.CellMapper;
+import com.patinaud.bataillepersistence.mapper.GridMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -95,6 +97,11 @@ public class PersistenceServiceImpl implements PersistenceService {
         return CellMapper.toDtos(cellRepository.findRevealedCells(idGame, idPlayer));
     }
 
+
+    @Override
+    public GridDTO getGrid(String idGame, IdPlayer idPlayer) {
+        return GridMapper.toDto(cellRepository.findCells(idGame, idPlayer));
+    }
 
     @Override
     public void revealCell(String idGame, IdPlayer idPlayer, int x, int y) {
