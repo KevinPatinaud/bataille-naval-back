@@ -12,5 +12,5 @@ import java.util.List;
 public interface IaPlayerService {
     public ArrayList<BoatDTO> positionBoatOnGrid(List<BoatType> boats, GridDTO grid);
 
-    public CoordinateDTO iaAttack(ArrayList<CellDTO> cellsRevealed, int widthGrid, int heigthGrid);
+    public CoordinateDTO iaAttack(GridDTO grid);
 }
