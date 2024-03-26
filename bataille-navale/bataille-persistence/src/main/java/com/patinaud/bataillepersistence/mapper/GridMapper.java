@@ -15,7 +15,7 @@ public class GridMapper {
     public static GridDTO toDto(List<Cell> cells) {
 
         List<Cell> sortedCells = cells.stream()
-                .sorted(Comparator.comparing(Cell::getX).thenComparing(Cell::getY))
+                .sorted(Comparator.comparing(Cell::getY).thenComparing(Cell::getX))
                 .collect(Collectors.toList());
 
 
@@ -27,7 +27,7 @@ public class GridMapper {
 
         for (int i = 0; i < sortedCells.size(); i++) {
 
-            CellDTO cell = CellMapper.toDto(cells.get(i));
+            CellDTO cell = CellMapper.toDto(sortedCells.get(i));
 
             if (cell.getY() != previousLine) {
                 gridCells.add(lineCells);

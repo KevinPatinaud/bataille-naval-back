@@ -37,7 +37,7 @@ public class GridDTO {
 
     public CellDTO getCell(int x, int y) {
         if (isInTheGrid(x, y)) {
-            return cells.get(x).get(y);
+            return cells.get(y).get(x);
         }
         return null;
     }
@@ -48,7 +48,7 @@ public class GridDTO {
 
     public void updateCell(CellDTO cell) {
         if (isInTheGrid(cell.getX(), cell.getY())) {
-            cells.get(cell.getX()).set(cell.getY(), cell);
+            cells.get(cell.getY()).set(cell.getX(), cell);
         }
     }
 

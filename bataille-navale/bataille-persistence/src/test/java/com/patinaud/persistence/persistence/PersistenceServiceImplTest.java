@@ -4,6 +4,7 @@ import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
+import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillepersistence.dao.BoatRepository;
 import com.patinaud.bataillepersistence.dao.CellRepository;
 import com.patinaud.bataillepersistence.dao.GameRepository;
@@ -117,7 +118,7 @@ class PersistenceServiceImplTest {
     @Test
     void revealCell() {
         persistenceServiceImpl.initializeGame("reveal_cell");
-        persistenceServiceImpl.revealCell("reveal_cell", IdPlayer.PLAYER_2, 3, 5);
+        persistenceServiceImpl.revealCell("reveal_cell", IdPlayer.PLAYER_2, new CoordinateDTO(3, 5));
         ArrayList<CellDTO> revealedCells = persistenceServiceImpl.getRevealedCells("reveal_cell", IdPlayer.PLAYER_2);
 
         List<Cell> cells = cellRepository.findCells("reveal_cell", IdPlayer.PLAYER_2);
@@ -130,7 +131,7 @@ class PersistenceServiceImplTest {
     @Test
     void revealCellOutsideGrid() {
         persistenceServiceImpl.initializeGame("reveal_cell");
-        persistenceServiceImpl.revealCell("reveal_cell", IdPlayer.PLAYER_2, 10, 5);
+        persistenceServiceImpl.revealCell("reveal_cell", IdPlayer.PLAYER_2, new CoordinateDTO(10, 5));
         ArrayList<CellDTO> revealedCells = persistenceServiceImpl.getRevealedCells("reveal_cell", IdPlayer.PLAYER_2);
 
         List<Cell> cells = cellRepository.findCells("reveal_cell", IdPlayer.PLAYER_2);
@@ -196,20 +197,20 @@ class PersistenceServiceImplTest {
         boatsDtosInit.add(boatDTO);
         persistenceServiceImpl.setBoatPosition("idGame", IdPlayer.PLAYER_1, boatsDtosInit);
 
-        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, 2, 4);
+        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, new CoordinateDTO(2, 4));
         persistenceServiceImpl.updateStateBoats("idGame", IdPlayer.PLAYER_1);
         Boat croiseur = boatRepository.findBoatByType("idGame", IdPlayer.PLAYER_1, BoatType.CROISEUR);
         Assertions.assertFalse(croiseur.isDestroyed());
 
 
-        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, 3, 4);
-        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, 4, 4);
+        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, new CoordinateDTO(3, 4));
+        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, new CoordinateDTO(4, 4));
         persistenceServiceImpl.updateStateBoats("idGame", IdPlayer.PLAYER_1);
         croiseur = boatRepository.findBoatByType("idGame", IdPlayer.PLAYER_1, BoatType.CROISEUR);
         Assertions.assertFalse(croiseur.isDestroyed());
 
 
-        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, 5, 4);
+        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, new CoordinateDTO(5, 4));
         persistenceServiceImpl.updateStateBoats("idGame", IdPlayer.PLAYER_1);
         croiseur = boatRepository.findBoatByType("idGame", IdPlayer.PLAYER_1, BoatType.CROISEUR);
         Assertions.assertTrue(croiseur.isDestroyed());
@@ -232,14 +233,14 @@ class PersistenceServiceImplTest {
         boatsDtosInit.add(boatDTO);
         persistenceServiceImpl.setBoatPosition("idGame", IdPlayer.PLAYER_1, boatsDtosInit);
 
-        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, 3, 4);
-        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, 3, 5);
+        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, new CoordinateDTO(3, 4));
+        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, new CoordinateDTO(3, 5));
         persistenceServiceImpl.updateStateBoats("idGame", IdPlayer.PLAYER_1);
         Boat sousMarin1 = boatRepository.findBoatByType("idGame", IdPlayer.PLAYER_1, BoatType.SOUS_MARIN_1);
         Assertions.assertFalse(sousMarin1.isDestroyed());
 
 
-        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, 3, 6);
+        persistenceServiceImpl.revealCell("idGame", IdPlayer.PLAYER_1, new CoordinateDTO(3, 6));
         persistenceServiceImpl.updateStateBoats("idGame", IdPlayer.PLAYER_1);
         sousMarin1 = boatRepository.findBoatByType("idGame", IdPlayer.PLAYER_1, BoatType.SOUS_MARIN_1);
         Assertions.assertTrue(sousMarin1.isDestroyed());

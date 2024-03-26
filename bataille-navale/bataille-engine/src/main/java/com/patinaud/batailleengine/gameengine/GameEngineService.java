@@ -1,6 +1,7 @@
 package com.patinaud.batailleengine.gameengine;
 
 import com.patinaud.bataillemodel.dto.BoatDTO;
+import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillemodel.dto.GameDTO;
 
 import java.util.ArrayList;
@@ -11,6 +12,6 @@ public interface GameEngineService {
 
     void positionHumanPlayerBoat(String idGame, ArrayList<BoatDTO> boats);
 
-    void playerAttack(String idGame, String idPlayerAttackerStr, int xTargeted, int yTargeted);
+    void playerAttack(String idGame, String idPlayerAttackerStr, CoordinateDTO coordinateTargeted);
 
 }

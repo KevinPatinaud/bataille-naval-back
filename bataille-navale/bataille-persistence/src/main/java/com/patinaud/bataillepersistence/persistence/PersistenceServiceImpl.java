@@ -4,6 +4,7 @@ package com.patinaud.bataillepersistence.persistence;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
+import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillemodel.dto.GridDTO;
 import com.patinaud.bataillepersistence.dao.BoatRepository;
 import com.patinaud.bataillepersistence.dao.CellRepository;
@@ -104,9 +105,9 @@ public class PersistenceServiceImpl implements PersistenceService {
     }
 
     @Override
-    public void revealCell(String idGame, IdPlayer idPlayer, int x, int y) {
+    public void revealCell(String idGame, IdPlayer idPlayer, CoordinateDTO coordinate) {
 
-        Cell cell = cellRepository.findCellXY(idGame, idPlayer, x, y);
+        Cell cell = cellRepository.findCellXY(idGame, idPlayer, coordinate.getX(), coordinate.getY());
         if (cell != null) {
             cell.setRevealed(true);
             cellRepository.save(cell);
