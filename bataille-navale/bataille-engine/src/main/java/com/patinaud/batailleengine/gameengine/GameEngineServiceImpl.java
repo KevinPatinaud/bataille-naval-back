@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -42,6 +43,26 @@ public class GameEngineServiceImpl implements GameEngineService {
         return gameDTO;
     }
 
+    private GridDTO generateEmptyGrid(int width, int height) {
+
+        List<List<CellDTO>> grid = new ArrayList<>();
+
+        for (int x = 0; x < width; x++) {
+            List<CellDTO> line = new ArrayList<>();
+            for (int y = 0; y < height; y++) {
+                CellDTO cell = new CellDTO();
+                cell.setX(x);
+                cell.setY(y);
+                cell.setRevealed(false);
+                cell.setOccupied(false);
+                line.add(cell);
+            }
+            grid.add(line);
+        }
+        GridDTO gridDto = new GridDTO();
+        gridDto.setCells(grid);
+        return gridDto;
+    }
 
     private void positionIaPlayerBoats(String idGame) {
 
@@ -52,7 +73,7 @@ public class GameEngineServiceImpl implements GameEngineService {
         boatsToPosition.add(BoatType.SOUS_MARIN_2);
         boatsToPosition.add(BoatType.TORPILLEUR);
 
-        persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_2, iaPlayerService.positionBoatOnGrid(boatsToPosition, 10, 10));
+        persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_2, iaPlayerService.positionBoatOnGrid(boatsToPosition, generateEmptyGrid(10, 10)));
 
     }
 

@@ -5,6 +5,7 @@ import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
+import com.patinaud.bataillemodel.dto.GridDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
@@ -13,6 +14,28 @@ import java.util.List;
 import java.util.Optional;
 
 class IaPlayerServiceTest {
+
+
+    private GridDTO generateEmptyGrid(int width, int height) {
+
+        List<List<CellDTO>> grid = new ArrayList<>();
+
+        for (int x = 0; x < width; x++) {
+            List<CellDTO> line = new ArrayList<>();
+            for (int y = 0; y < height; y++) {
+                CellDTO cell = new CellDTO();
+                cell.setX(x);
+                cell.setY(y);
+                cell.setRevealed(false);
+                cell.setOccupied(false);
+                line.add(cell);
+            }
+            grid.add(line);
+        }
+        GridDTO gridDto = new GridDTO();
+        gridDto.setCells(grid);
+        return gridDto;
+    }
 
     @Test
     void allBoatArePositionned() {
@@ -23,13 +46,13 @@ class IaPlayerServiceTest {
         boats.add(BoatType.TORPILLEUR);
         boats.add(BoatType.CROISEUR);
 
-        List<BoatDTO> boatsPositions = ia.positionBoatOnGrid(boats, 10, 10);
+        List<BoatDTO> boatsPositions = ia.positionBoatOnGrid(boats, generateEmptyGrid(10, 10));
         Assertions.assertEquals(3, boatsPositions.size());
 
-        Optional<BoatDTO> porteAvions = boatsPositions.stream().filter(b -> b.getBoatType().equals(BoatType.PORTE_AVIONS)).findFirst();
-        Assertions.assertTrue(porteAvions.isPresent());
-        if (porteAvions.isPresent()) {
-            Assertions.assertFalse(porteAvions.get().isDestroyed());
+        Optional<BoatDTO> porteAvion = boatsPositions.stream().filter(b -> b.getBoatType().equals(BoatType.PORTE_AVIONS)).findFirst();
+        Assertions.assertTrue(porteAvion.isPresent());
+        if (porteAvion.isPresent()) {
+            Assertions.assertFalse(porteAvion.get().isDestroyed());
         }
 
         Optional<BoatDTO> torpilleur = boatsPositions.stream().filter(b -> b.getBoatType().equals(BoatType.TORPILLEUR)).findFirst();
@@ -46,44 +69,70 @@ class IaPlayerServiceTest {
     }
 
     @Test
-    void theHeadofTheBoatIsWellPosition() {
+    void theBoatIsInsideTheGridVert() {
         IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        Assertions.assertTrue(ia.theBoatIsPositionedInsideTheGrid(BoatType.CROISEUR, 1, 1, false, 10, 10));
-        Assertions.assertTrue(ia.theBoatIsPositionedInsideTheGrid(BoatType.CROISEUR, 0, 0, false, 10, 10));
 
-        Assertions.assertFalse(ia.theBoatIsPositionedInsideTheGrid(BoatType.CROISEUR, -1, 1, false, 10, 10));
-        Assertions.assertFalse(ia.theBoatIsPositionedInsideTheGrid(BoatType.CROISEUR, 0, -1, false, 10, 10));
-        Assertions.assertFalse(ia.theBoatIsPositionedInsideTheGrid(BoatType.CROISEUR, 10, 1, false, 10, 10));
-        Assertions.assertFalse(ia.theBoatIsPositionedInsideTheGrid(BoatType.CROISEUR, 0, 10, false, 10, 10));
+        BoatDTO boat = new BoatDTO();
+        boat.setBoatType(BoatType.CROISEUR);
+        boat.setxHead(2);
+        boat.setyHead(4);
+        boat.setHorizontal(false);
+
+        GridDTO grid = generateEmptyGrid(10, 10);
+
+        Assertions.assertTrue(ia.theBoatSizeCanEnterInTheGrid(boat, grid));
 
     }
 
 
     @Test
-    void theBoatIsPositionnedInsideTheGridHoriz() {
+    void theBoatCanEnterTheGridHoriz() {
         IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        Assertions.assertTrue(ia.theBoatIsPositionedInsideTheGrid(BoatType.PORTE_AVIONS, 2, 3, true, 10, 10));
+
+        BoatDTO boat = new BoatDTO();
+        boat.setBoatType(BoatType.PORTE_AVIONS);
+        boat.setxHead(2);
+        boat.setyHead(4);
+        boat.setHorizontal(true);
+
+        GridDTO grid = generateEmptyGrid(10, 10);
+
+        Assertions.assertTrue(ia.theBoatSizeCanEnterInTheGrid(boat, grid));
+
     }
 
 
     @Test
-    void theBoatIsNotPositionnedInsideTheGridHoriz() {
+    void theBoatCannotEnterTheGridVert() {
         IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        Assertions.assertFalse(ia.theBoatIsPositionedInsideTheGrid(BoatType.PORTE_AVIONS, 9, 3, true, 10, 10));
+
+        BoatDTO boat = new BoatDTO();
+        boat.setBoatType(BoatType.SOUS_MARIN_1);
+        boat.setxHead(8);
+        boat.setyHead(4);
+        boat.setHorizontal(false);
+
+        GridDTO grid = generateEmptyGrid(10, 10);
+
+        Assertions.assertTrue(ia.theBoatSizeCanEnterInTheGrid(boat, grid));
+
     }
 
 
     @Test
-    void theBoatIsPositionnedInsideTheGridVertical() {
+    void theBoatCanEnterTheGridVert() {
         IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        Assertions.assertTrue(ia.theBoatIsPositionedInsideTheGrid(BoatType.PORTE_AVIONS, 2, 3, false, 10, 10));
-    }
 
+        BoatDTO boat = new BoatDTO();
+        boat.setBoatType(BoatType.PORTE_AVIONS);
+        boat.setxHead(8);
+        boat.setyHead(4);
+        boat.setHorizontal(false);
 
-    @Test
-    void theBoatIsNotPositionnedInsideTheGridVertical() {
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        Assertions.assertFalse(ia.theBoatIsPositionedInsideTheGrid(BoatType.PORTE_AVIONS, 4, 8, false, 10, 10));
+        GridDTO grid = generateEmptyGrid(10, 10);
+
+        Assertions.assertTrue(ia.theBoatSizeCanEnterInTheGrid(boat, grid));
+
     }
 
 
@@ -129,16 +178,23 @@ class IaPlayerServiceTest {
     void thePositionIsFree() {
 
         IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        BoatDTO boat = new BoatDTO();
-        boat.setBoatType(BoatType.TORPILLEUR);
-        boat.setxHead(7);
-        boat.setyHead(3);
-        boat.setHorizontal(true);
 
-        ArrayList<BoatDTO> boatsAlreadyPositionned = new ArrayList<>();
-        boatsAlreadyPositionned.add(boat);
+        BoatDTO boatToPosition = new BoatDTO();
+        boatToPosition.setBoatType(BoatType.PORTE_AVIONS);
+        boatToPosition.setxHead(4);
+        boatToPosition.setyHead(3);
+        boatToPosition.setHorizontal(true);
 
-        Assertions.assertTrue(ia.thePositionIsFree(BoatType.PORTE_AVIONS, boatsAlreadyPositionned, 4, 2, false));
+        BoatDTO boatAlreadyPositioned = new BoatDTO();
+        boatAlreadyPositioned.setBoatType(BoatType.TORPILLEUR);
+        boatAlreadyPositioned.setxHead(7);
+        boatAlreadyPositioned.setyHead(5);
+        boatAlreadyPositioned.setHorizontal(true);
+
+        ArrayList<BoatDTO> boatsAlreadyPositioned = new ArrayList<>();
+        boatsAlreadyPositioned.add(boatAlreadyPositioned);
+
+        Assertions.assertTrue(ia.thePositionIsFree(boatToPosition, boatsAlreadyPositioned));
     }
 
 
@@ -146,16 +202,23 @@ class IaPlayerServiceTest {
     void thePositionIsNotFree() {
 
         IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        BoatDTO boat = new BoatDTO();
-        boat.setBoatType(BoatType.TORPILLEUR);
-        boat.setxHead(5);
-        boat.setyHead(5);
-        boat.setHorizontal(false);
 
-        ArrayList<BoatDTO> boatsAlreadyPositionned = new ArrayList<>();
-        boatsAlreadyPositionned.add(boat);
+        BoatDTO boatToPosition = new BoatDTO();
+        boatToPosition.setBoatType(BoatType.PORTE_AVIONS);
+        boatToPosition.setxHead(6);
+        boatToPosition.setyHead(3);
+        boatToPosition.setHorizontal(true);
 
-        Assertions.assertFalse(ia.thePositionIsFree(BoatType.PORTE_AVIONS, boatsAlreadyPositionned, 4, 6, false));
+        BoatDTO boatAlreadyPositioned = new BoatDTO();
+        boatAlreadyPositioned.setBoatType(BoatType.TORPILLEUR);
+        boatAlreadyPositioned.setxHead(3);
+        boatAlreadyPositioned.setyHead(3);
+        boatAlreadyPositioned.setHorizontal(false);
+
+        ArrayList<BoatDTO> boatsAlreadyPositioned = new ArrayList<>();
+        boatsAlreadyPositioned.add(boatAlreadyPositioned);
+
+        Assertions.assertTrue(ia.thePositionIsFree(boatToPosition, boatsAlreadyPositioned));
     }
 
     @Test

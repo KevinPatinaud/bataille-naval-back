@@ -4,6 +4,7 @@ import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
+import com.patinaud.bataillemodel.dto.GridDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,69 +15,68 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     private final Random random = new Random();
 
     @Override
-    public ArrayList<BoatDTO> positionBoatOnGrid(List<BoatType> boatsToPositions, int widthGrid, int heigthGrid) {
+    public ArrayList<BoatDTO> positionBoatOnGrid(List<BoatType> boatsToPositions, GridDTO grid) {
 
         ArrayList<BoatDTO> boatsPositions = new ArrayList<>();
 
         for (int i = 0; i < boatsToPositions.size(); i++) {
 
-            boatsPositions.add(findAPositionForTheBoat(boatsToPositions.get(i), boatsPositions, widthGrid, heigthGrid));
+            boatsPositions.add(findAPositionForTheBoat(boatsToPositions.get(i), boatsPositions, grid));
         }
 
         return boatsPositions;
     }
 
 
-    public BoatDTO findAPositionForTheBoat(BoatType boatType, List<BoatDTO> alreadyPositionnedBoats, int widthGrid, int heigthGrid) {
-        int xHead = random.nextInt(widthGrid);
-        int yHead = random.nextInt(heigthGrid);
+    public BoatDTO findAPositionForTheBoat(BoatType boatType, List<BoatDTO> alreadyPositionnedBoats, GridDTO grid) {
+        int xHead = random.nextInt(grid.getWidth());
+        int yHead = random.nextInt(grid.getHeight());
         boolean isHorizontal = random.nextInt(2) == 0;
 
-        if (!theBoatIsPositionedInsideTheGrid(boatType, xHead, yHead, isHorizontal, widthGrid, heigthGrid)) {
-            return findAPositionForTheBoat(boatType, alreadyPositionnedBoats, widthGrid, heigthGrid);
+        BoatDTO boatToPosition = new BoatDTO();
+        boatToPosition.setxHead(xHead);
+        boatToPosition.setyHead(yHead);
+        boatToPosition.setHorizontal(isHorizontal);
+        boatToPosition.setDestroyed(false);
+        boatToPosition.setBoatType(boatType);
+
+        if (!theBoatSizeCanEnterInTheGrid(boatToPosition, grid)) {
+            return findAPositionForTheBoat(boatType, alreadyPositionnedBoats, grid);
         }
 
 
-        if (!thePositionIsFree(boatType, alreadyPositionnedBoats, xHead, yHead, isHorizontal)) {
-            return findAPositionForTheBoat(boatType, alreadyPositionnedBoats, widthGrid, heigthGrid);
+        if (!thePositionIsFree(boatToPosition, alreadyPositionnedBoats)) {
+            return findAPositionForTheBoat(boatType, alreadyPositionnedBoats, grid);
         }
 
-        BoatDTO boat = new BoatDTO();
-        boat.setxHead(xHead);
-        boat.setyHead(yHead);
-        boat.setHorizontal(isHorizontal);
-        boat.setDestroyed(false);
-        boat.setBoatType(boatType);
-
-        return boat;
+        return boatToPosition;
     }
 
-    public boolean theBoatIsPositionedInsideTheGrid(BoatType boatType, int xHead, int yHead, boolean isHorizontal, int widthGrid, int heigthGrid) {
+    public boolean theBoatSizeCanEnterInTheGrid(BoatDTO boat, GridDTO grid) {
 
-        if (xHead >= 0 && xHead < widthGrid && yHead >= 0 && yHead < heigthGrid) {
-            if (isHorizontal && xHead + boatType.getSize() < widthGrid) {
+        if (boat.getxHead() >= 0 && boat.getxHead() < grid.getWidth() && boat.getyHead() >= 0 && boat.getyHead() < grid.getHeight()) {
+            if (boat.isHorizontal() && boat.getxHead() + boat.getBoatType().getSize() < grid.getWidth()) {
                 return true;
             }
-            if (!isHorizontal && yHead + boatType.getSize() < heigthGrid) {
+            if (!boat.isHorizontal() && boat.getyHead() + boat.getBoatType().getSize() < grid.getHeight()) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean thePositionIsFree(BoatType boatType, List<BoatDTO> alreadyPositionnedBoats, int xHead, int yHead, boolean isHorizontal) {
+    public boolean thePositionIsFree(BoatDTO boat, List<BoatDTO> alreadyPositionedBoats) {
 
-        boolean theCellIsFree = true;
-        for (int i = 0; i < boatType.getSize(); i++) {
-            int x = xHead + (isHorizontal ? i : 0);
-            int y = yHead + (!isHorizontal ? i : 0);
+        for (int i = 0; i < boat.getBoatType().getSize(); i++) {
+            int x = boat.getxHead() + (boat.isHorizontal() ? i : 0);
+            int y = boat.getyHead() + (!boat.isHorizontal() ? i : 0);
 
-            if (cellContainsABoat(alreadyPositionnedBoats, x, y)) {
-                theCellIsFree = false;
+            if (cellContainsABoat(alreadyPositionedBoats, x, y)) {
+                return false;
             }
         }
 
-        return theCellIsFree;
+        return true;
     }
 
     public boolean cellContainsABoat(List<BoatDTO> boats, int xCell, int yCell) {
