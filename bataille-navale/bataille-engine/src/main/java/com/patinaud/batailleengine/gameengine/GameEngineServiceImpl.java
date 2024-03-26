@@ -84,13 +84,13 @@ public class GameEngineServiceImpl implements GameEngineService {
 
 
     @Override
-    public void playerAttack(String idGame, String idPlayerAttackerStr, int xTargeted, int yTargeted) {
+    public void playerAttack(String idGame, String idPlayerAttackerStr, CoordinateDTO coordinateTargeted) {
         try {
 
             IdPlayer idPlayerAttacker = IdPlayer.valueOf(idPlayerAttackerStr.toUpperCase());
             IdPlayer idPlayerOpponent = getIdOpponent(idPlayerAttacker);
 
-            revealeCell(idGame, idPlayerAttacker, idPlayerOpponent, xTargeted, yTargeted);
+            revealCell(idGame, idPlayerAttacker, idPlayerOpponent, coordinateTargeted);
 
 
             iaPlay(idGame, idPlayerOpponent, idPlayerAttacker);
@@ -119,8 +119,11 @@ public class GameEngineServiceImpl implements GameEngineService {
         return idPlayer.equals(IdPlayer.PLAYER_1) ? IdPlayer.PLAYER_2 : IdPlayer.PLAYER_1;
     }
 
-    private void revealeCell(String idGame, IdPlayer idPlayerAttacker, IdPlayer idPlayerTargeted, int xCellTargeted, int yCellTargeted) {
-        persistenceService.revealCell(idGame, idPlayerTargeted, xCellTargeted, yCellTargeted);
+    private void revealCell(String idGame, IdPlayer idPlayerAttacker, IdPlayer idPlayerTargeted, CoordinateDTO coordinateTargeted) {
+
+        System.out.println(coordinateTargeted.getX() + " : " + coordinateTargeted.getY());
+
+        persistenceService.revealCell(idGame, idPlayerTargeted, coordinateTargeted);
         persistenceService.updateStateBoats(idGame, idPlayerTargeted);
         persistenceService.revealCellsNextToDestroyedBoat(idGame, idPlayerTargeted);
 
@@ -140,7 +143,7 @@ public class GameEngineServiceImpl implements GameEngineService {
     private void iaPlay(String idGame, IdPlayer idIaPlayer, IdPlayer idPlayerTargeted) {
         GridDTO grid = persistenceService.getGrid(idGame, idPlayerTargeted);
         CoordinateDTO coordinateToReveal = iaPlayerService.iaAttack(grid);
-        revealeCell(idGame, idIaPlayer, idPlayerTargeted, coordinateToReveal.getX(), coordinateToReveal.getY());
+        revealCell(idGame, idIaPlayer, idPlayerTargeted, coordinateToReveal);
 
     }
 

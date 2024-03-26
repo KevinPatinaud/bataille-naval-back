@@ -527,11 +527,14 @@ class IaPlayerServiceTest {
 
         IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
 
-        GridDTO grid = generateEmptyGrid(3, 2);
+        GridDTO grid = generateEmptyGrid(3, 3);
         grid.updateCell(createRevealedCellDto(0, 0, false));
         grid.updateCell(createRevealedCellDto(1, 0, false));
         grid.updateCell(createRevealedCellDto(2, 0, false));
         grid.updateCell(createRevealedCellDto(0, 1, false));
+        grid.updateCell(createRevealedCellDto(0, 2, false));
+        grid.updateCell(createRevealedCellDto(1, 2, false));
+        grid.updateCell(createRevealedCellDto(2, 2, false));
 
         CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
 

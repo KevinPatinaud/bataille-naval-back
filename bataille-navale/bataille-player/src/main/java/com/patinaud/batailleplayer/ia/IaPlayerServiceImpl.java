@@ -106,11 +106,11 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     public CoordinateDTO iaAttack(GridDTO grid) {
 
         CoordinateDTO coordinateToAttack = calculBestCoordToAttack(grid);
-        if (coordinateToAttack == null) {
-            coordinateToAttack = randomlyTargetACoveredCell(grid);
+        if (coordinateToAttack != null) {
+            return coordinateToAttack;
         }
 
-        return coordinateToAttack;
+        return randomlyTargetACoveredCell(grid);
     }
 
 
@@ -194,7 +194,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
 
         if (nmbBoatCellRight > 1) {
-            CoordinateDTO coordinateTarget = chooseABetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX() + nmbBoatCellRight, cell.getY()), new CoordinateDTO(cell.getX() - nmbBoatCellLeft, cell.getY()), grid);
+            CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX() + nmbBoatCellRight, cell.getY()), new CoordinateDTO(cell.getX() - nmbBoatCellLeft, cell.getY()), grid);
 
             if (coordinateTarget != null) {
                 return coordinateTarget;
@@ -202,7 +202,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         }
 
         if (nmbBoatCellLeft > 1) {
-            CoordinateDTO coordinateTarget = chooseABetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX() - nmbBoatCellLeft, cell.getY()), new CoordinateDTO(cell.getX() + nmbBoatCellRight, cell.getY()), grid);
+            CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX() - nmbBoatCellLeft, cell.getY()), new CoordinateDTO(cell.getX() + nmbBoatCellRight, cell.getY()), grid);
 
             if (coordinateTarget != null) {
                 return coordinateTarget;
@@ -211,7 +211,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
 
         if (nmbBoatCellBottom > 1) {
-            CoordinateDTO coordinateTarget = chooseABetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), grid);
+            CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), grid);
 
             if (coordinateTarget != null) {
                 return coordinateTarget;
@@ -220,7 +220,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
 
         if (nmbBoatCellTop > 1) {
-            CoordinateDTO coordinateTarget = chooseABetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), grid);
+            CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), grid);
 
             if (coordinateTarget != null) {
                 return coordinateTarget;
@@ -238,6 +238,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
         while (
                 grid.isInTheGrid(x, y) &&
+                        grid.getCell(x, y).isRevealed() &&
                         grid.getCell(x, y).isOccupied()) {
             inc++;
             x = cell.getX() + evolveX * inc;
@@ -247,7 +248,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
 
-    public CoordinateDTO chooseABetterCellToAttackBetweenTwo(CoordinateDTO coordinateCellInDirection, CoordinateDTO coordinateCellInOppositeDirection, GridDTO grid) {
+    public CoordinateDTO chooseBetterCellToAttackBetweenTwo(CoordinateDTO coordinateCellInDirection, CoordinateDTO coordinateCellInOppositeDirection, GridDTO grid) {
         if (
                 grid.isInTheGrid(coordinateCellInDirection) &&
                         !grid.getCell(coordinateCellInDirection).isRevealed()
