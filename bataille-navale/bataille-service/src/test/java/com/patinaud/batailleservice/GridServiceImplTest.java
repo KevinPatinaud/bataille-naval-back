@@ -2,6 +2,7 @@ package com.patinaud.batailleservice;
 
 import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.dto.BoatDTO;
+import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillemodel.dto.GridDTO;
 import com.patinaud.batailleservice.service.GridService;
@@ -195,6 +196,95 @@ public class GridServiceImplTest {
         boatsAlreadyPositioned.add(boatAlreadyPositioned);
 
         Assertions.assertTrue(gridService.thePositionIsFreeOfOtherBoats(boatToPosition, boatsAlreadyPositioned));
+    }
+
+
+    @Test
+    void countNumberOfRevealedCellWhichContainsABoatFromThisCell() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+        CellDTO cell = new CellDTO();
+        cell.setX(3);
+        cell.setY(6);
+
+        Assertions.assertEquals(0,
+                gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(3, 6), -1, 0)
+        );
+    }
+
+
+    @Test
+    void countNumberOfRevealedCellWhichContainsABoatFromThisCellToLeftBorder() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+
+        grid.getCell(1, 6).setRevealed(true);
+        grid.getCell(1, 6).setOccupied(true);
+
+        grid.getCell(0, 6).setRevealed(true);
+        grid.getCell(0, 6).setOccupied(true);
+
+        CellDTO cell = new CellDTO();
+        cell.setX(2);
+        cell.setY(6);
+
+        Assertions.assertEquals(2,
+                gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(2, 6), -1, 0)
+        );
+    }
+
+
+    @Test
+    void countNumberOfRevealedCellWhichContainsABoatFromThisCellToTopWater() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+        grid.getCell(2, 4).setRevealed(true);
+        grid.getCell(2, 4).setOccupied(false);
+
+        grid.getCell(2, 5).setRevealed(true);
+        grid.getCell(2, 5).setOccupied(true);
+
+
+        Assertions.assertEquals(1,
+                gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(2, 6), 0, -1)
+        );
+    }
+
+
+    @Test
+    void countNumberOfUnrevealedCellFromThisCellToBorder() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+
+        CellDTO cell = new CellDTO();
+        cell.setX(4);
+        cell.setY(6);
+
+        Assertions.assertEquals(4,
+                gridService.countNumberOfUnrevealedCellFromThisCoordinate(grid, new CoordinateDTO(4, 6), -1, 0)
+        );
+    }
+
+
+    @Test
+    void countNumberOfUnrevealedCellFromThisCellToRevealed() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+        grid.getCell(4, 2).setRevealed(true);
+
+        Assertions.assertEquals(3,
+                gridService.countNumberOfUnrevealedCellFromThisCoordinate(grid, new CoordinateDTO(4, 6), 0, -1)
+        );
     }
 
 

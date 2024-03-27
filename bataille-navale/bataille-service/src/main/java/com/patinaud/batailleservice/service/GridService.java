@@ -8,16 +8,21 @@ import java.util.List;
 
 public interface GridService {
 
-    public GridDTO generateEmptyGrid(int width, int height);
+    GridDTO generateEmptyGrid(int width, int height);
 
-    public boolean theBoatCanBePositionHere(BoatDTO boatToPosition, List<BoatDTO> alreadyPositionedBoats, GridDTO grid );
+    boolean theBoatCanBePositionHere(BoatDTO boatToPosition, List<BoatDTO> alreadyPositionedBoats, GridDTO grid);
 
-    public boolean theBoatCanEnterInTheGrid(BoatDTO boat, GridDTO grid);
+    boolean theBoatCanEnterInTheGrid(BoatDTO boat, GridDTO grid);
 
-    public boolean thePositionIsFreeOfOtherBoats(BoatDTO boat, List<BoatDTO> alreadyPositionedBoats);
+    boolean thePositionIsFreeOfOtherBoats(BoatDTO boat, List<BoatDTO> alreadyPositionedBoats);
 
-    public boolean atLeastOneBoatOccupiesTheCell(List<BoatDTO> boats, CoordinateDTO coordinateCell);
+    boolean atLeastOneBoatOccupiesTheCell(List<BoatDTO> boats, CoordinateDTO coordinateCell);
 
-    public boolean theBoatOccupiesTheCell(BoatDTO boat, CoordinateDTO coordinateCell);
+    boolean theBoatOccupiesTheCell(BoatDTO boat, CoordinateDTO coordinateCell);
+
+    int countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(GridDTO grid, CoordinateDTO coordinate, int evolveX, int evolveY);
+
+
+    int countNumberOfUnrevealedCellFromThisCoordinate(GridDTO grid, CoordinateDTO coordinate, int evolveX, int evolveY);
 
 }

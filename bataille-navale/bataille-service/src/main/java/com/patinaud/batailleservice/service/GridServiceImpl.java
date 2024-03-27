@@ -34,9 +34,8 @@ public class GridServiceImpl implements GridService {
     }
 
 
-    public boolean theBoatCanBePositionHere(BoatDTO boatToPosition, List<BoatDTO> alreadyPositionedBoats,GridDTO grid )
-    {
-        return theBoatCanEnterInTheGrid(boatToPosition , grid) && thePositionIsFreeOfOtherBoats( boatToPosition , alreadyPositionedBoats);
+    public boolean theBoatCanBePositionHere(BoatDTO boatToPosition, List<BoatDTO> alreadyPositionedBoats, GridDTO grid) {
+        return theBoatCanEnterInTheGrid(boatToPosition, grid) && thePositionIsFreeOfOtherBoats(boatToPosition, alreadyPositionedBoats);
     }
 
     public boolean theBoatCanEnterInTheGrid(BoatDTO boat, GridDTO grid) {
@@ -45,9 +44,7 @@ public class GridServiceImpl implements GridService {
             if (boat.isHorizontal() && boat.getxHead() + boat.getBoatType().getSize() < grid.getWidth()) {
                 return true;
             }
-            if (!boat.isHorizontal() && boat.getyHead() + boat.getBoatType().getSize() < grid.getHeight()) {
-                return true;
-            }
+            return !boat.isHorizontal() && boat.getyHead() + boat.getBoatType().getSize() < grid.getHeight();
         }
         return false;
     }
@@ -58,7 +55,7 @@ public class GridServiceImpl implements GridService {
             int x = boat.getxHead() + (boat.isHorizontal() ? i : 0);
             int y = boat.getyHead() + (!boat.isHorizontal() ? i : 0);
 
-            if (atLeastOneBoatOccupiesTheCell(alreadyPositionedBoats, new CoordinateDTO( x, y))) {
+            if (atLeastOneBoatOccupiesTheCell(alreadyPositionedBoats, new CoordinateDTO(x, y))) {
                 return false;
             }
         }
@@ -90,6 +87,34 @@ public class GridServiceImpl implements GridService {
     }
 
 
+    public int countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(GridDTO grid, CoordinateDTO coordinate, int evolveX, int evolveY) {
+        int inc = 1;
+        int x = coordinate.getX() + evolveX * inc;
+        int y = coordinate.getY() + evolveY * inc;
 
+        while (
+                grid.isInTheGrid(x, y) &&
+                        grid.getCell(x, y).isRevealed() &&
+                        grid.getCell(x, y).isOccupied()) {
+            inc++;
+            x = coordinate.getX() + evolveX * inc;
+            y = coordinate.getY() + evolveY * inc;
+        }
+        return inc - 1;
+    }
+
+
+    public int countNumberOfUnrevealedCellFromThisCoordinate(GridDTO grid, CoordinateDTO coordinate, int evolveX, int evolveY) {
+        int inc = 1;
+        int x = coordinate.getX() + evolveX * inc;
+        int y = coordinate.getY() + evolveY * inc;
+
+        while (grid.isInTheGrid(x, y) && !grid.getCell(x, y).isRevealed()) {
+            inc++;
+            x = coordinate.getX() + evolveX * inc;
+            y = coordinate.getY() + evolveY * inc;
+        }
+        return inc - 1;
+    }
 
 }

@@ -7,6 +7,8 @@ import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillemodel.dto.GridDTO;
 import com.patinaud.batailleplayer.model.PonderationCell;
 import com.patinaud.batailleservice.service.GridService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +17,13 @@ import java.util.*;
 @Service
 public class IaPlayerServiceImpl implements IaPlayerService {
 
-    private GridService gridService;
+    private static final Logger logger = LoggerFactory.getLogger(IaPlayerServiceImpl.class);
+
     private final Random random = new Random();
+    private final GridService gridService;
 
     @Autowired
-    public IaPlayerServiceImpl(GridService gridService)
-    {
+    public IaPlayerServiceImpl(GridService gridService) {
         this.gridService = gridService;
     }
 
@@ -50,8 +53,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         boatToPosition.setDestroyed(false);
         boatToPosition.setBoatType(boatType);
 
-        if (gridService.theBoatCanBePositionHere(boatToPosition , alreadyPositionnedBoats , grid))
-        {
+        if (gridService.theBoatCanBePositionHere(boatToPosition, alreadyPositionnedBoats, grid)) {
             return boatToPosition;
         }
 
@@ -144,11 +146,19 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
     public CoordinateDTO calculBestCoordToAttackFromAtLeastTwoRevealedBoatCell(GridDTO grid, CellDTO cell) {
 
-        int nmbBoatCellRight = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, 1, 0);
-        int nmbBoatCellLeft = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, -1, 0);
-        int nmbBoatCellBottom = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, 0, 1);
-        int nmbBoatCellTop = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, 0, -1);
+        int nmbBoatCellRight = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 1, 0) + 1;
+        int nmbBoatCellLeft = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), -1, 0) + 1;
+        int nmbBoatCellBottom = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 0, 1) + 1;
+        int nmbBoatCellTop = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 0, -1) + 1;
 
+
+        System.out.println("_____________________________________________");
+        System.out.println("X : " + cell.getX());
+        System.out.println("Y : " + cell.getY());
+        System.out.println("nmbBoatCellRight : " + nmbBoatCellRight);
+        System.out.println("nmbBoatCellLeft : " + nmbBoatCellLeft);
+        System.out.println("nmbBoatCellBottom : " + nmbBoatCellBottom);
+        System.out.println("nmbBoatCellTop : " + nmbBoatCellTop);
 
         if (nmbBoatCellRight > 1) {
             CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX() + nmbBoatCellRight, cell.getY()), new CoordinateDTO(cell.getX() - nmbBoatCellLeft, cell.getY()), grid);
@@ -179,29 +189,10 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         if (nmbBoatCellTop > 1) {
             CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), grid);
 
-            if (coordinateTarget != null) {
-                return coordinateTarget;
-            }
+            return coordinateTarget;
         }
 
         return null;
-    }
-
-
-    public int countNumberOfCellBoatFromRevealedBoatCell(GridDTO grid, CellDTO cell, int evolveX, int evolveY) {
-        int inc = 0;
-        int x = cell.getX() + evolveX * inc;
-        int y = cell.getY() + evolveY * inc;
-
-        while (
-                grid.isInTheGrid(x, y) &&
-                        grid.getCell(x, y).isRevealed() &&
-                        grid.getCell(x, y).isOccupied()) {
-            inc++;
-            x = cell.getX() + evolveX * inc;
-            y = cell.getY() + evolveY * inc;
-        }
-        return inc;
     }
 
 
