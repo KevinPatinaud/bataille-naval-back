@@ -1,22 +1,22 @@
 package com.patinaud.bataillepersistence.mapper;
 
 import com.patinaud.bataillemodel.dto.CellDTO;
-import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillemodel.dto.GridDTO;
 import com.patinaud.bataillepersistence.entity.Cell;
 import com.patinaud.bataillepersistence.entity.Player;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GridMapper {
-
+    private GridMapper() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static GridDTO toDto(List<Cell> cells) {
 
         List<Cell> sortedCells = cells.stream()
                 .sorted(Comparator.comparing(Cell::getY).thenComparing(Cell::getX))
-                .collect(Collectors.toList());
+                .toList();
 
 
         List<CellDTO> lineCells = new ArrayList<>();
@@ -48,7 +48,7 @@ public class GridMapper {
 
     public static List<Cell> toCellsEntities(GridDTO grid, Player player) {
 
-        return grid.getCells().stream().flatMap(List::stream).map(cellDTO -> CellMapper.toEntity(cellDTO, player)).collect(Collectors.toList());
+        return grid.getCells().stream().flatMap(List::stream).map(cellDTO -> CellMapper.toEntity(cellDTO, player)).toList();
 
     }
 }

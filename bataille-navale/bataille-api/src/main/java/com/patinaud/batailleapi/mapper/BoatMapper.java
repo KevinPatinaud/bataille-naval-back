@@ -13,7 +13,7 @@ public class BoatMapper {
         throw new IllegalStateException("Utility class");
     }
 
-    public static ArrayList<BoatDTO> toDtos(List<Boat> boats) {
+    public static List<BoatDTO> toDtos(List<Boat> boats) {
 
         return boats.stream().map(b -> toDto(b)).collect(Collectors.toCollection(ArrayList::new));
     }

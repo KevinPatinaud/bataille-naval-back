@@ -6,8 +6,10 @@ import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillemodel.dto.GridDTO;
-import org.junit.jupiter.api.Test;
+import com.patinaud.batailleservice.service.GridService;
+import com.patinaud.batailleservice.service.GridServiceImpl;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +39,22 @@ class IaPlayerServiceTest {
         return gridDto;
     }
 
+
+    @Test
+    void randomlyTargetACoveredCellNull() {
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
+        CoordinateDTO coordinate = ia.randomlyTargetACoveredCell(generateEmptyGrid(10, 10));
+
+        Assertions.assertNotNull(coordinate);
+
+    }
+
+
     @Test
     void allBoatArePositionned() {
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         ArrayList<BoatType> boats = new ArrayList<BoatType>();
         boats.add(BoatType.PORTE_AVIONS);
@@ -68,180 +83,6 @@ class IaPlayerServiceTest {
         }
     }
 
-    @Test
-    void theBoatIsInsideTheGridVert() {
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-
-        BoatDTO boat = new BoatDTO();
-        boat.setBoatType(BoatType.CROISEUR);
-        boat.setxHead(2);
-        boat.setyHead(4);
-        boat.setHorizontal(false);
-
-        GridDTO grid = generateEmptyGrid(10, 10);
-
-        Assertions.assertTrue(ia.theBoatSizeCanEnterInTheGrid(boat, grid));
-
-    }
-
-
-    @Test
-    void theBoatCanEnterTheGridHoriz() {
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-
-        BoatDTO boat = new BoatDTO();
-        boat.setBoatType(BoatType.PORTE_AVIONS);
-        boat.setxHead(2);
-        boat.setyHead(4);
-        boat.setHorizontal(true);
-
-        GridDTO grid = generateEmptyGrid(10, 10);
-
-        Assertions.assertTrue(ia.theBoatSizeCanEnterInTheGrid(boat, grid));
-
-    }
-
-
-    @Test
-    void theBoatCannotEnterTheGridVert() {
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-
-        BoatDTO boat = new BoatDTO();
-        boat.setBoatType(BoatType.SOUS_MARIN_1);
-        boat.setxHead(8);
-        boat.setyHead(4);
-        boat.setHorizontal(false);
-
-        GridDTO grid = generateEmptyGrid(10, 10);
-
-        Assertions.assertTrue(ia.theBoatSizeCanEnterInTheGrid(boat, grid));
-
-    }
-
-
-    @Test
-    void theBoatCanEnterTheGridVert() {
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-
-        BoatDTO boat = new BoatDTO();
-        boat.setBoatType(BoatType.PORTE_AVIONS);
-        boat.setxHead(8);
-        boat.setyHead(4);
-        boat.setHorizontal(false);
-
-        GridDTO grid = generateEmptyGrid(10, 10);
-
-        Assertions.assertTrue(ia.theBoatSizeCanEnterInTheGrid(boat, grid));
-
-    }
-
-
-    @Test
-    void boatOccupiesTheCellHoriz() {
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        BoatDTO boat = new BoatDTO();
-        boat.setBoatType(BoatType.CROISEUR);
-        boat.setxHead(5);
-        boat.setyHead(5);
-        boat.setHorizontal(true);
-
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 5, 5));
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 4, 4));
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 4, 6));
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 9, 4));
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 9, 6));
-        Assertions.assertFalse(ia.boatOccupiesTheCell(boat, 9, 7));
-        Assertions.assertFalse(ia.boatOccupiesTheCell(boat, 9, 3));
-    }
-
-
-    @Test
-    void boatOccupiesTheCellVerti() {
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        BoatDTO boat = new BoatDTO();
-        boat.setBoatType(BoatType.TORPILLEUR);
-        boat.setxHead(5);
-        boat.setyHead(5);
-        boat.setHorizontal(false);
-
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 5, 5));
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 5, 6));
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 4, 4));
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 6, 4));
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 4, 7));
-        Assertions.assertTrue(ia.boatOccupiesTheCell(boat, 6, 7));
-
-        Assertions.assertFalse(ia.boatOccupiesTheCell(boat, 8, 7));
-    }
-
-    @Test
-    void thePositionIsFree() {
-
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-
-        BoatDTO boatToPosition = new BoatDTO();
-        boatToPosition.setBoatType(BoatType.PORTE_AVIONS);
-        boatToPosition.setxHead(4);
-        boatToPosition.setyHead(3);
-        boatToPosition.setHorizontal(true);
-
-        BoatDTO boatAlreadyPositioned = new BoatDTO();
-        boatAlreadyPositioned.setBoatType(BoatType.TORPILLEUR);
-        boatAlreadyPositioned.setxHead(7);
-        boatAlreadyPositioned.setyHead(5);
-        boatAlreadyPositioned.setHorizontal(true);
-
-        ArrayList<BoatDTO> boatsAlreadyPositioned = new ArrayList<>();
-        boatsAlreadyPositioned.add(boatAlreadyPositioned);
-
-        Assertions.assertTrue(ia.thePositionIsFreeOfOtherBoats(boatToPosition, boatsAlreadyPositioned));
-    }
-
-
-    @Test
-    void thePositionIsNotFree() {
-
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-
-        BoatDTO boatToPosition = new BoatDTO();
-        boatToPosition.setBoatType(BoatType.PORTE_AVIONS);
-        boatToPosition.setxHead(6);
-        boatToPosition.setyHead(3);
-        boatToPosition.setHorizontal(true);
-
-        BoatDTO boatAlreadyPositioned = new BoatDTO();
-        boatAlreadyPositioned.setBoatType(BoatType.TORPILLEUR);
-        boatAlreadyPositioned.setxHead(3);
-        boatAlreadyPositioned.setyHead(3);
-        boatAlreadyPositioned.setHorizontal(false);
-
-        ArrayList<BoatDTO> boatsAlreadyPositioned = new ArrayList<>();
-        boatsAlreadyPositioned.add(boatAlreadyPositioned);
-
-        Assertions.assertTrue(ia.thePositionIsFreeOfOtherBoats(boatToPosition, boatsAlreadyPositioned));
-    }
-
-    @Test
-    void randomlyTargetACoveredCellNull() {
-
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        CoordinateDTO coordinate = ia.randomlyTargetACoveredCell(generateEmptyGrid(10, 10));
-
-        Assertions.assertNotNull(coordinate);
-
-    }
-
-
-    @Test
-    void cellContainsABoatNull() {
-
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
-        Boolean cellContainsABoat = ia.cellContainsABoat(null, 0, 0);
-
-        Assertions.assertFalse(cellContainsABoat);
-
-    }
-
 
     private CellDTO createRevealedCellDto(int x, int y, boolean occupied) {
         CellDTO cellDto = new CellDTO();
@@ -256,7 +97,8 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoat() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(4, 5, false));
@@ -278,7 +120,8 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatBorderRight() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(8, 5, true));
@@ -297,7 +140,8 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatBorderRightReverse() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
@@ -318,7 +162,8 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatBorderLeft() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
@@ -338,7 +183,8 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatBorderLeftReverse() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
@@ -359,7 +205,8 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatBorderTop() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
@@ -380,7 +227,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatBorderTopReverse() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(3, 1, true));
@@ -400,7 +249,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatBorderBottom() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
@@ -420,7 +271,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatBorderBottomReverse() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
@@ -441,7 +294,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatTop() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
@@ -463,7 +318,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackCloud() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
@@ -486,7 +343,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackCloudBorderRight() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(9, 2, false));
@@ -507,7 +366,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackCloudBorderLeft() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(0, 3, true));
@@ -528,7 +389,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackCloudBorderBottom() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(5, 9, true));
@@ -549,7 +412,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackCloudBorderTop() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(5, 0, true));
@@ -570,7 +435,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackRandom() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(3, 3);
         grid.updateCell(createRevealedCellDto(0, 0, false));
@@ -594,7 +461,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatIsolatedAndRandomBorder() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(5, 0, true));
@@ -621,7 +490,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatIsolatedAndRandomInGrid() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
 
@@ -654,7 +525,9 @@ class IaPlayerServiceTest {
     @Test
     void iaAttackBoatAlone() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(0, 0, true));
@@ -678,7 +551,9 @@ class IaPlayerServiceTest {
     @Test
     void calculBestCoordToAttackFromCellXplus1() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(1, 1, true));
@@ -694,7 +569,9 @@ class IaPlayerServiceTest {
     @Test
     void calculBestCoordToAttackFromCellXMoins1() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(1, 1, true));
@@ -712,7 +589,9 @@ class IaPlayerServiceTest {
     @Test
     void calculBestCoordToAttackFromCellYplus1() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(1, 1, true));
@@ -730,7 +609,9 @@ class IaPlayerServiceTest {
     @Test
     void calculBestCoordToAttackFromCellYMoins1() {
 
-        IaPlayerServiceImpl ia = new IaPlayerServiceImpl();
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(1, 1, true));

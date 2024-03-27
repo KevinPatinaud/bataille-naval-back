@@ -4,7 +4,7 @@ package com.patinaud.bataillepersistence.persistence;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 public interface PersistenceService {
@@ -27,7 +27,7 @@ public interface PersistenceService {
 
     public void updateStateBoats(String idGame, IdPlayer idPlayer);
 
-    public void setBoatPosition(String idGame, IdPlayer idPlayer, ArrayList<BoatDTO> positionBoatOnGrid);
+    public void setBoatPosition(String idGame, IdPlayer idPlayer, List<BoatDTO> positionBoatOnGrid);
 
     public void revealCellsNextToDestroyedBoat(String idGame, IdPlayer idPlayer);
 }

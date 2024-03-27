@@ -21,7 +21,6 @@ import java.util.List;
 @Service
 public class PersistenceServiceImpl implements PersistenceService {
 
-
     GameRepository gameRepository;
 
     PlayerRepository playerRepository;
@@ -96,8 +95,8 @@ public class PersistenceServiceImpl implements PersistenceService {
     }
 
     @Override
-    public void setBoatPosition(String idGame, IdPlayer idPlayer, ArrayList<BoatDTO> positionBoatOnGrid) {
-        ArrayList<Boat> boats = BoatMapper.toEntities(positionBoatOnGrid, playerRepository.findByGame(idGame, idPlayer));
+    public void setBoatPosition(String idGame, IdPlayer idPlayer, List<BoatDTO> positionBoatOnGrid) {
+        List<Boat> boats = BoatMapper.toEntities(positionBoatOnGrid, playerRepository.findByGame(idGame, idPlayer));
 
         boatRepository.saveAll(boats);
 
@@ -119,15 +118,15 @@ public class PersistenceServiceImpl implements PersistenceService {
     }
 
     @Override
-    public ArrayList<BoatDTO> getBoats(String idGame, IdPlayer idPlayer) {
+    public List<BoatDTO> getBoats(String idGame, IdPlayer idPlayer) {
         return BoatMapper.toDtos(boatRepository.findBoats(idGame, idPlayer));
     }
 
     @Override
     public void updateStateBoats(String idGame, IdPlayer idPlayer) {
-        ArrayList<Boat> boats = boatRepository.findBoats(idGame, idPlayer);
+        List<Boat> boats = boatRepository.findBoats(idGame, idPlayer);
 
-        ArrayList<Cell> revealedCells = cellRepository.findRevealedCells(idGame, idPlayer);
+        List<Cell> revealedCells = cellRepository.findRevealedCells(idGame, idPlayer);
 
         for (int i = 0; i < boats.size(); i++) {
             Boat boat = boats.get(i);
@@ -140,7 +139,7 @@ public class PersistenceServiceImpl implements PersistenceService {
         }
     }
 
-    public boolean isBoatDestroyed(Boat boat, ArrayList<Cell> revealedCells) {
+    public boolean isBoatDestroyed(Boat boat, List<Cell> revealedCells) {
 
         int xBoatHead = boat.getxHead();
         int yBoatHead = boat.getyHead();

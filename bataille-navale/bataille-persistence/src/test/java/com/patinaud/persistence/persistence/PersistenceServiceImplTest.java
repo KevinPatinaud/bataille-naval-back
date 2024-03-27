@@ -86,6 +86,20 @@ class PersistenceServiceImplTest {
     }
 
     @Test
+    void getGrid() {
+
+        String idGame = "reveal_cell";
+        IdPlayer idPlayer = IdPlayer.PLAYER_1;
+        initGame(idGame, idPlayer);
+
+        GridDTO grid =    persistenceServiceImpl.getGrid(idGame , idPlayer);
+
+        Assertions.assertEquals(10 , grid.getWidth());
+        Assertions.assertEquals(10 , grid.getHeight());
+
+    }
+
+    @Test
     void revealCellNoCellsRevealed() {
         String idGame = "reveal_cell";
         IdPlayer idPlayer = IdPlayer.PLAYER_1;
@@ -146,7 +160,7 @@ class PersistenceServiceImplTest {
         boatsDtosInit.add(boatDTO);
         persistenceServiceImpl.setBoatPosition(idGame, idPlayer, boatsDtosInit);
 
-        ArrayList<BoatDTO> boats = persistenceServiceImpl.getBoats(idGame, idPlayer);
+        List<BoatDTO> boats = persistenceServiceImpl.getBoats(idGame, idPlayer);
 
         Assertions.assertEquals(1, boats.size());
         BoatDTO torpilleur = boats.get(0);
@@ -176,7 +190,7 @@ class PersistenceServiceImplTest {
         boatsDtosInit.add(boatDTO);
         persistenceServiceImpl.setBoatPosition(idGame, idPlayer, boatsDtosInit);
 
-        ArrayList<BoatDTO> boats = persistenceServiceImpl.getBoats(idGame, idPlayer);
+        List<BoatDTO> boats = persistenceServiceImpl.getBoats(idGame, idPlayer);
         Assertions.assertFalse(persistenceServiceImpl.isAllBoatDestroyed(idGame, idPlayer));
     }
 

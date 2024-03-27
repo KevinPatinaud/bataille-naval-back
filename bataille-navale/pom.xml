@@ -20,13 +20,13 @@
     </properties>
 
     <modules>
-        <module>bataille-api</module>
-        <module>bataille-communication</module>
         <module>bataille-model</module>
-        <module>bataille-engine</module>
-        <module>bataille-persistence</module>
-        <module>bataille-player</module>
         <module>bataille-service</module>
+        <module>bataille-persistence</module>
+        <module>bataille-communication</module>
+        <module>bataille-player</module>
+        <module>bataille-engine</module>
+        <module>bataille-api</module>
     </modules>
 
 

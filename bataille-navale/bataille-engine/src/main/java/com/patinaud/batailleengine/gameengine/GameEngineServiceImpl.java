@@ -4,9 +4,6 @@ import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
 import com.patinaud.bataillecommunication.communication.PlayerCommunicationService;
-import com.patinaud.bataillepersistence.entity.Cell;
-import com.patinaud.bataillepersistence.entity.Game;
-import com.patinaud.bataillepersistence.entity.Player;
 import com.patinaud.bataillepersistence.persistence.PersistenceService;
 import com.patinaud.batailleplayer.ia.IaPlayerService;
 import com.patinaud.batailleservice.service.GridService;
@@ -16,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class GameEngineServiceImpl implements GameEngineService {
@@ -93,7 +89,7 @@ public class GameEngineServiceImpl implements GameEngineService {
     }
 
     @Override
-    public void positionHumanPlayerBoat(String idGame, ArrayList<BoatDTO> boats) {
+    public void positionHumanPlayerBoat(String idGame, List<BoatDTO> boats) {
         persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_1, boats);
     }
 
@@ -107,9 +103,7 @@ public class GameEngineServiceImpl implements GameEngineService {
 
             revealCell(idGame, idPlayerAttacker, idPlayerOpponent, coordinateTargeted);
 
-
             iaPlay(idGame, idPlayerOpponent, idPlayerAttacker);
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,7 +130,6 @@ public class GameEngineServiceImpl implements GameEngineService {
 
     private void revealCell(String idGame, IdPlayer idPlayerAttacker, IdPlayer idPlayerTargeted, CoordinateDTO coordinateTargeted) {
 
-        System.out.println(coordinateTargeted.getX() + " : " + coordinateTargeted.getY());
 
         persistenceService.revealCell(idGame, idPlayerTargeted, coordinateTargeted);
         persistenceService.updateStateBoats(idGame, idPlayerTargeted);
@@ -158,7 +151,7 @@ public class GameEngineServiceImpl implements GameEngineService {
     private void iaPlay(String idGame, IdPlayer idIaPlayer, IdPlayer idPlayerTargeted) {
         GridDTO grid = persistenceService.getGrid(idGame, idPlayerTargeted);
 
-        List<BoatType> boatsToFinds = persistenceService.getBoats(idGame, idPlayerTargeted).stream().filter(boat -> !boat.isDestroyed()).map(boat -> boat.getBoatType()).collect(Collectors.toList());
+        List<BoatType> boatsToFinds = persistenceService.getBoats(idGame, idPlayerTargeted).stream().filter(boat -> !boat.isDestroyed()).map(BoatDTO::getBoatType).toList();
 
         CoordinateDTO coordinateToReveal = iaPlayerService.iaAttack(grid, boatsToFinds);
         revealCell(idGame, idIaPlayer, idPlayerTargeted, coordinateToReveal);

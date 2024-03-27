@@ -29,7 +29,7 @@ public class PlayerDTO {
         return isIA;
     }
 
-    public void setIA(boolean IA) {
-        isIA = IA;
+    public void setIA(boolean isIA) {
+        this.isIA = isIA;
     }
 }
