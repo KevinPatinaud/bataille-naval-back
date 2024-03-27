@@ -6,6 +6,7 @@ import com.patinaud.bataillemodel.dto.*;
 import com.patinaud.bataillecommunication.communication.PlayerCommunicationService;
 import com.patinaud.bataillepersistence.persistence.PersistenceService;
 import com.patinaud.batailleplayer.ia.IaPlayerService;
+import com.patinaud.batailleservice.service.GridService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,20 +21,50 @@ public class GameEngineServiceImpl implements GameEngineService {
     PersistenceService persistenceService;
     IaPlayerService iaPlayerService;
 
+    GridService gridService;
+
     @Autowired
-    public GameEngineServiceImpl(PlayerCommunicationService playerCommunicationService, PersistenceService persistenceService, IaPlayerService iaPlayerService) {
+    public GameEngineServiceImpl(PlayerCommunicationService playerCommunicationService, PersistenceService persistenceService, IaPlayerService iaPlayerService, GridService gridService) {
         this.playerCommunicationService = playerCommunicationService;
         this.persistenceService = persistenceService;
         this.iaPlayerService = iaPlayerService;
-
+        this.gridService = gridService;
     }
 
     public GameDTO generateNewGame() {
-        // Génère un id unique
         String idGame = System.currentTimeMillis() + "W" + UUID.randomUUID().toString();
 
-        // initialise le jeu
-        persistenceService.initializeGame(idGame);
+
+        GameDTO game = new GameDTO();
+        game.setIdGame(idGame);
+        game.setIdPlayerTurn(IdPlayer.PLAYER_1);
+
+        persistenceService.saveGame(game);
+
+
+        PlayerDTO player1 = new PlayerDTO();
+        player1.setIdPlayer(IdPlayer.PLAYER_1);
+        player1.setGame(game);
+        player1.setIA(false);
+        persistenceService.savePlayer(player1);
+
+
+        GridDTO gridPlayer1 = gridService.generateEmptyGrid(10, 10);
+
+        persistenceService.saveGrid(idGame, player1.getIdPlayer(), gridPlayer1);
+
+
+        PlayerDTO player2 = new PlayerDTO();
+        player2.setIdPlayer(IdPlayer.PLAYER_2);
+        player2.setGame(game);
+        player2.setIA(true);
+        persistenceService.savePlayer(player2);
+
+
+        GridDTO gridPlayer2 = gridService.generateEmptyGrid(10, 10);
+
+        persistenceService.saveGrid(idGame, player2.getIdPlayer(), gridPlayer2);
+
 
         positionIaPlayerBoats(idGame);
 
@@ -43,26 +74,6 @@ public class GameEngineServiceImpl implements GameEngineService {
         return gameDTO;
     }
 
-    private GridDTO generateEmptyGrid(int width, int height) {
-
-        List<List<CellDTO>> grid = new ArrayList<>();
-
-        for (int x = 0; x < width; x++) {
-            List<CellDTO> line = new ArrayList<>();
-            for (int y = 0; y < height; y++) {
-                CellDTO cell = new CellDTO();
-                cell.setX(x);
-                cell.setY(y);
-                cell.setRevealed(false);
-                cell.setOccupied(false);
-                line.add(cell);
-            }
-            grid.add(line);
-        }
-        GridDTO gridDto = new GridDTO();
-        gridDto.setCells(grid);
-        return gridDto;
-    }
 
     private void positionIaPlayerBoats(String idGame) {
 
@@ -73,12 +84,12 @@ public class GameEngineServiceImpl implements GameEngineService {
         boatsToPosition.add(BoatType.SOUS_MARIN_2);
         boatsToPosition.add(BoatType.TORPILLEUR);
 
-        persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_2, iaPlayerService.positionBoatOnGrid(boatsToPosition, generateEmptyGrid(10, 10)));
+        persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_2, iaPlayerService.positionBoatOnGrid(boatsToPosition, gridService.generateEmptyGrid(10, 10)));
 
     }
 
     @Override
-    public void positionHumanPlayerBoat(String idGame, ArrayList<BoatDTO> boats) {
+    public void positionHumanPlayerBoat(String idGame, List<BoatDTO> boats) {
         persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_1, boats);
     }
 
@@ -92,9 +103,7 @@ public class GameEngineServiceImpl implements GameEngineService {
 
             revealCell(idGame, idPlayerAttacker, idPlayerOpponent, coordinateTargeted);
 
-
             iaPlay(idGame, idPlayerOpponent, idPlayerAttacker);
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,7 +130,6 @@ public class GameEngineServiceImpl implements GameEngineService {
 
     private void revealCell(String idGame, IdPlayer idPlayerAttacker, IdPlayer idPlayerTargeted, CoordinateDTO coordinateTargeted) {
 
-        System.out.println(coordinateTargeted.getX() + " : " + coordinateTargeted.getY());
 
         persistenceService.revealCell(idGame, idPlayerTargeted, coordinateTargeted);
         persistenceService.updateStateBoats(idGame, idPlayerTargeted);
@@ -142,7 +150,10 @@ public class GameEngineServiceImpl implements GameEngineService {
 
     private void iaPlay(String idGame, IdPlayer idIaPlayer, IdPlayer idPlayerTargeted) {
         GridDTO grid = persistenceService.getGrid(idGame, idPlayerTargeted);
-        CoordinateDTO coordinateToReveal = iaPlayerService.iaAttack(grid);
+
+        List<BoatType> boatsToFinds = persistenceService.getBoats(idGame, idPlayerTargeted).stream().filter(boat -> !boat.isDestroyed()).map(BoatDTO::getBoatType).toList();
+
+        CoordinateDTO coordinateToReveal = iaPlayerService.iaAttack(grid, boatsToFinds);
         revealCell(idGame, idIaPlayer, idPlayerTargeted, coordinateToReveal);
 
     }

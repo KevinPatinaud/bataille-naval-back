@@ -5,6 +5,11 @@ import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillemodel.dto.GridDTO;
+import com.patinaud.batailleplayer.model.PonderationCell;
+import com.patinaud.batailleservice.service.GridService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -12,7 +17,15 @@ import java.util.*;
 @Service
 public class IaPlayerServiceImpl implements IaPlayerService {
 
+    private static final Logger logger = LoggerFactory.getLogger(IaPlayerServiceImpl.class);
+
     private final Random random = new Random();
+    private final GridService gridService;
+
+    @Autowired
+    public IaPlayerServiceImpl(GridService gridService) {
+        this.gridService = gridService;
+    }
 
     @Override
     public ArrayList<BoatDTO> positionBoatOnGrid(List<BoatType> boatsToPositions, GridDTO grid) {
@@ -40,70 +53,16 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         boatToPosition.setDestroyed(false);
         boatToPosition.setBoatType(boatType);
 
-        if (!theBoatSizeCanEnterInTheGrid(boatToPosition, grid)) {
-            return findAPositionForTheBoat(boatType, alreadyPositionnedBoats, grid);
+        if (gridService.theBoatCanBePositionHere(boatToPosition, alreadyPositionnedBoats, grid)) {
+            return boatToPosition;
         }
 
+        return findAPositionForTheBoat(boatType, alreadyPositionnedBoats, grid);
 
-        if (!thePositionIsFree(boatToPosition, alreadyPositionnedBoats)) {
-            return findAPositionForTheBoat(boatType, alreadyPositionnedBoats, grid);
-        }
-
-        return boatToPosition;
-    }
-
-    public boolean theBoatSizeCanEnterInTheGrid(BoatDTO boat, GridDTO grid) {
-
-        if (boat.getxHead() >= 0 && boat.getxHead() < grid.getWidth() && boat.getyHead() >= 0 && boat.getyHead() < grid.getHeight()) {
-            if (boat.isHorizontal() && boat.getxHead() + boat.getBoatType().getSize() < grid.getWidth()) {
-                return true;
-            }
-            if (!boat.isHorizontal() && boat.getyHead() + boat.getBoatType().getSize() < grid.getHeight()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean thePositionIsFree(BoatDTO boat, List<BoatDTO> alreadyPositionedBoats) {
-
-        for (int i = 0; i < boat.getBoatType().getSize(); i++) {
-            int x = boat.getxHead() + (boat.isHorizontal() ? i : 0);
-            int y = boat.getyHead() + (!boat.isHorizontal() ? i : 0);
-
-            if (cellContainsABoat(alreadyPositionedBoats, x, y)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public boolean cellContainsABoat(List<BoatDTO> boats, int xCell, int yCell) {
-        if (boats == null) return false;
-
-        boolean cellContainsABoat = false;
-
-        for (int i = 0; i < boats.size(); i++) {
-            if (boatOccupiesTheCell(boats.get(i), xCell, yCell)) {
-                cellContainsABoat = true;
-            }
-        }
-
-        return cellContainsABoat;
-    }
-
-    public boolean boatOccupiesTheCell(BoatDTO boat, int xCell, int yCell) {
-        int xMin = boat.getxHead() - 1;
-        int yMin = boat.getyHead() - 1;
-        int xMax = boat.getxHead() + (boat.isHorizontal() ? boat.getBoatType().getSize() : 1);
-        int yMax = boat.getyHead() + (!boat.isHorizontal() ? boat.getBoatType().getSize() : 1);
-
-        return xCell >= xMin && xCell <= xMax && yCell >= yMin && yCell <= yMax;
     }
 
 
-    public CoordinateDTO iaAttack(GridDTO grid) {
+    public CoordinateDTO iaAttack(GridDTO grid, List<BoatType> boatsToFinds) {
 
         CoordinateDTO coordinateToAttack = calculBestCoordToAttack(grid);
         if (coordinateToAttack != null) {
@@ -187,11 +146,19 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
     public CoordinateDTO calculBestCoordToAttackFromAtLeastTwoRevealedBoatCell(GridDTO grid, CellDTO cell) {
 
-        int nmbBoatCellRight = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, 1, 0);
-        int nmbBoatCellLeft = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, -1, 0);
-        int nmbBoatCellBottom = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, 0, 1);
-        int nmbBoatCellTop = countNumberOfCellBoatFromRevealedBoatCell(grid, cell, 0, -1);
+        int nmbBoatCellRight = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 1, 0) + 1;
+        int nmbBoatCellLeft = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), -1, 0) + 1;
+        int nmbBoatCellBottom = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 0, 1) + 1;
+        int nmbBoatCellTop = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 0, -1) + 1;
 
+
+        System.out.println("_____________________________________________");
+        System.out.println("X : " + cell.getX());
+        System.out.println("Y : " + cell.getY());
+        System.out.println("nmbBoatCellRight : " + nmbBoatCellRight);
+        System.out.println("nmbBoatCellLeft : " + nmbBoatCellLeft);
+        System.out.println("nmbBoatCellBottom : " + nmbBoatCellBottom);
+        System.out.println("nmbBoatCellTop : " + nmbBoatCellTop);
 
         if (nmbBoatCellRight > 1) {
             CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX() + nmbBoatCellRight, cell.getY()), new CoordinateDTO(cell.getX() - nmbBoatCellLeft, cell.getY()), grid);
@@ -222,29 +189,10 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         if (nmbBoatCellTop > 1) {
             CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), grid);
 
-            if (coordinateTarget != null) {
-                return coordinateTarget;
-            }
+            return coordinateTarget;
         }
 
         return null;
-    }
-
-
-    public int countNumberOfCellBoatFromRevealedBoatCell(GridDTO grid, CellDTO cell, int evolveX, int evolveY) {
-        int inc = 0;
-        int x = cell.getX() + evolveX * inc;
-        int y = cell.getY() + evolveY * inc;
-
-        while (
-                grid.isInTheGrid(x, y) &&
-                        grid.getCell(x, y).isRevealed() &&
-                        grid.getCell(x, y).isOccupied()) {
-            inc++;
-            x = cell.getX() + evolveX * inc;
-            y = cell.getY() + evolveY * inc;
-        }
-        return inc;
     }
 
 
@@ -280,16 +228,5 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         return null;
     }
 
-    public CellDTO getCellByCoordinate(ArrayList<CellDTO> cells, int x, int y) {
-        if (cells == null) {
-            return null;
-        }
-
-        Optional<CellDTO> result = cells.stream().filter(c -> c.getX() == x && c.getY() == y).findFirst();
-        if (result.isPresent()) {
-            return result.get();
-        }
-        return null;
-    }
 
 }

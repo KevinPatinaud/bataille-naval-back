@@ -14,7 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+
+import java.util.List;
 
 
 @Service
@@ -34,7 +35,7 @@ public class PlayerCommunicationServiceImpl implements PlayerCommunicationServic
 
 
     @Override
-    public void diffuseRevealedCells(String idGame, IdPlayer idplayer, ArrayList<CellDTO> cells) {
+    public void diffuseRevealedCells(String idGame, IdPlayer idplayer, List<CellDTO> cells) {
         this.messagingTemplate.convertAndSend(DIFFUSE_PATH + idGame + "/" + GameAction.REVEALED_CELLS.getValue(),
                 gson.toJson(
                         PlayerCellsMapper.fromDtosToResponses(idplayer, cells)
@@ -52,7 +53,7 @@ public class PlayerCommunicationServiceImpl implements PlayerCommunicationServic
     }
 
     @Override
-    public void diffuseBoatsStates(String idGame, IdPlayer idPlayer, ArrayList<BoatDTO> boats) {
+    public void diffuseBoatsStates(String idGame, IdPlayer idPlayer, List<BoatDTO> boats) {
         this.messagingTemplate.convertAndSend(DIFFUSE_PATH + idGame + "/" + GameAction.BOATS_STATES.getValue(),
                 gson.toJson(
                         PlayerBoatsStatesMapper.fromDtoToResponse(idPlayer, boats)

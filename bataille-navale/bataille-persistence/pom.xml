@@ -95,8 +95,8 @@
                         </goals>
                         <configuration>
                             <excludes>
-                                <!-- Exclure les classes de configuration -->
                                 <exclude>**/*Configuration.class</exclude>
+                                <exclude>**/*Config.class</exclude>
                             </excludes>
                             <rules>
                                 <rule>

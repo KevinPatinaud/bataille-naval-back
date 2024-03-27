@@ -7,10 +7,24 @@ import com.patinaud.bataillepersistence.mapper.GridMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GridMapperTest {
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class GridMapperTest {
+
+     @Test
+     void utilityClassConstructorShouldThrowException() throws NoSuchMethodException {
+         Constructor<GridMapper> constructor = GridMapper.class.getDeclaredConstructor();
+         constructor.setAccessible(true);
+
+         Exception exception = assertThrows(InvocationTargetException.class, constructor::newInstance);
+         Assertions.assertTrue(exception.getCause() instanceof IllegalStateException);
+         Assertions.assertTrue("Utility class".equals(exception.getCause().getMessage()));
+     }
 
     @Test
     void testSplitLineOK() {

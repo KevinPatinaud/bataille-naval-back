@@ -2,13 +2,14 @@ package com.patinaud.bataillecommunication.responsedata;
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
 
-import java.util.ArrayList;
+
+import java.util.List;
 
 public class PlayerBoatsStates {
 
     IdPlayer idPlayer;
 
-    ArrayList<BoatState> boatsStates;
+    List<BoatState> boatsStates;
 
     public IdPlayer getIdPlayer() {
         return idPlayer;
@@ -18,11 +19,11 @@ public class PlayerBoatsStates {
         this.idPlayer = idPlayer;
     }
 
-    public ArrayList<BoatState> getBoatsStates() {
+    public List<BoatState> getBoatsStates() {
         return boatsStates;
     }
 
-    public void setBoatsStates(ArrayList<BoatState> boatsStates) {
+    public void setBoatsStates(List<BoatState> boatsStates) {
         this.boatsStates = boatsStates;
     }
 }

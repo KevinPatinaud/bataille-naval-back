@@ -3,7 +3,7 @@
 
 
 # Choisir l'image de base
-FROM openjdk:17-oracle as build
+FROM openjdk:17-oracle AS build
 
 # Définir le répertoire de travail
 WORKDIR /app

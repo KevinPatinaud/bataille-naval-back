@@ -2,11 +2,11 @@ package com.patinaud.bataillecommunication.responsedata;
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerCells {
     private IdPlayer idPlayer;
-    private ArrayList<Cell> cells;
+    private List<Cell> cells;
 
     public IdPlayer getIdPlayer() {
         return idPlayer;
@@ -16,11 +16,11 @@ public class PlayerCells {
         this.idPlayer = idPlayer;
     }
 
-    public ArrayList<Cell> getCells() {
+    public List<Cell> getCells() {
         return cells;
     }
 
-    public void setCells(ArrayList<Cell> cells) {
+    public void setCells(List<Cell> cells) {
         this.cells = cells;
     }
 }

@@ -1,6 +1,6 @@
-package com.patinaud.batailleplayer.ia;
+package com.patinaud.batailleplayer.model;
 
-import com.patinaud.bataillemodel.dto.CoordinateDTO;
+
 
 public class PonderationCell {
     int weight;

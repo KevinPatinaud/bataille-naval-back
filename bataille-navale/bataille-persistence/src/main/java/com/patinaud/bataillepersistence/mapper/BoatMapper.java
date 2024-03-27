@@ -5,6 +5,7 @@ import com.patinaud.bataillepersistence.entity.Boat;
 import com.patinaud.bataillepersistence.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class BoatMapper {
@@ -12,7 +13,7 @@ public class BoatMapper {
         throw new IllegalStateException("Utility class");
     }
 
-    public static ArrayList<Boat> toEntities(ArrayList<BoatDTO> boatsDtos, Player player) {
+    public static List<Boat> toEntities(List<BoatDTO> boatsDtos, Player player) {
         return boatsDtos.stream().map(c -> toEntity(c, player)).collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -29,7 +30,7 @@ public class BoatMapper {
         return boat;
     }
 
-    public static ArrayList<BoatDTO> toDtos(ArrayList<Boat> boats) {
+    public static List<BoatDTO> toDtos(List<Boat> boats) {
         return boats.stream().map(c -> toDto(c)).collect(Collectors.toCollection(ArrayList::new));
     }
 
