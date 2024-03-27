@@ -1,5 +1,6 @@
 package com.patinaud.batailleservice.service;
 
+import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillemodel.dto.GridDTO;
@@ -24,5 +25,12 @@ public interface GridService {
 
 
     int countNumberOfUnrevealedCellFromThisCoordinate(GridDTO grid, CoordinateDTO coordinate, int evolveX, int evolveY);
+
+
+    int countNumberOfPositionTheBoatCanTakeInTheCoordinate(GridDTO grid, BoatType boatType, CoordinateDTO coordinate);
+
+    int countNumberOfPositionTheBoatCanTakeInTheCoordinateWithDirection(GridDTO grid, BoatType boatType, CoordinateDTO coordinate, boolean horizontalDirection);
+
+    int countNumberOfPositionBoatsCanTakeInTheCoordinate(GridDTO grid, List<BoatType> boatTypes, CoordinateDTO coordinate);
 
 }

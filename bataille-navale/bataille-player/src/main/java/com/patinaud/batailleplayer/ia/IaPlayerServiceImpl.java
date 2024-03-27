@@ -62,18 +62,18 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
 
-    public CoordinateDTO iaAttack(GridDTO grid, List<BoatType> boatsToFinds) {
+    public CoordinateDTO iaAttack(GridDTO grid, List<BoatType> boatsTypesToFinds) {
 
-        CoordinateDTO coordinateToAttack = calculBestCoordToAttack(grid);
+        CoordinateDTO coordinateToAttack = calculBestCoordToAttack(grid, boatsTypesToFinds);
         if (coordinateToAttack != null) {
             return coordinateToAttack;
         }
 
-        return randomlyTargetACoveredCell(grid);
+        return randomlyTargetAnUnrevealedCell(grid, boatsTypesToFinds);
     }
 
 
-    public CoordinateDTO calculBestCoordToAttack(GridDTO grid) {
+    public CoordinateDTO calculBestCoordToAttack(GridDTO grid, List<BoatType> boatsTypesToFinds) {
 
         Optional<CoordinateDTO> coordinateToAttack = grid.getCells().stream().flatMap(List::stream).filter(cell -> cell.isRevealed() && cell.isOccupied())
                 .map(cell -> calculBestCoordToAttackFromAtLeastTwoRevealedBoatCell(grid, cell))
@@ -86,7 +86,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
 
         coordinateToAttack = grid.getCells().stream().flatMap(List::stream).filter(cell -> cell.isRevealed() && cell.isOccupied())
-                .map(cell -> calculBestCoordToAttackFromOneUncoverBoatCell(grid, cell))
+                .map(cell -> calculBestCoordToAttackFromOneUncoverBoatCell(grid, boatsTypesToFinds, cell))
                 .filter(Objects::nonNull)
                 .findFirst();
 
@@ -98,7 +98,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
 
-    public CoordinateDTO randomlyTargetACoveredCell(GridDTO grid) {
+    public CoordinateDTO randomlyTargetAnUnrevealedCell(GridDTO grid, List<BoatType> boatsTypesToFinds) {
 
         ArrayList<PonderationCell> ponderations = new ArrayList<>();
         int totalWeight = 0;
@@ -107,9 +107,9 @@ public class IaPlayerServiceImpl implements IaPlayerService {
             for (int y = 0; y < grid.getHeight(); y++) {
                 if (!grid.getCell(x, y).isRevealed()) {
 
-                    int weight = calculateWeight(grid, x, y);
+                    int weight = gridService.countNumberOfPositionBoatsCanTakeInTheCoordinate(grid, boatsTypesToFinds, new CoordinateDTO(x, y));
 
-                    if (weight > 1) {
+                    if (weight > 0) {
                         totalWeight = totalWeight + weight;
                         ponderations.add(new PonderationCell(weight, x, y));
                     }
@@ -117,30 +117,19 @@ public class IaPlayerServiceImpl implements IaPlayerService {
             }
         }
 
+        if (totalWeight > 0) {
+            int indexWeightCell = random.nextInt(totalWeight);
+            int recoveryWeight = 0;
+            for (int i = 0; i < ponderations.size(); i++) {
+                recoveryWeight = recoveryWeight + ponderations.get(i).getWeight();
 
-        int indexWeightCell = random.nextInt(totalWeight);
-        int recoveryWeight = 0;
-        for (int i = 0; i < ponderations.size(); i++) {
-            recoveryWeight = recoveryWeight + ponderations.get(i).getWeight();
-
-            if (recoveryWeight > indexWeightCell) {
-                return new CoordinateDTO(ponderations.get(i).getX(), ponderations.get(i).getY());
+                if (recoveryWeight > indexWeightCell) {
+                    return new CoordinateDTO(ponderations.get(i).getX(), ponderations.get(i).getY());
+                }
             }
         }
 
         return null;
-    }
-
-
-    private int calculateWeight(GridDTO grid, int x, int y) {
-        int weight = 1;
-        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        for (int[] dir : directions) {
-            if (grid.isInTheGrid(x + dir[0], y + dir[1]) && !grid.getCell(x + dir[0], y + dir[1]).isRevealed()) {
-                weight *= 2;
-            }
-        }
-        return weight;
     }
 
 
@@ -151,14 +140,13 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         int nmbBoatCellBottom = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 0, 1) + 1;
         int nmbBoatCellTop = gridService.countNumberOfRevealedCellWhichContainsABoatFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 0, -1) + 1;
 
-
-        System.out.println("_____________________________________________");
-        System.out.println("X : " + cell.getX());
-        System.out.println("Y : " + cell.getY());
-        System.out.println("nmbBoatCellRight : " + nmbBoatCellRight);
-        System.out.println("nmbBoatCellLeft : " + nmbBoatCellLeft);
-        System.out.println("nmbBoatCellBottom : " + nmbBoatCellBottom);
-        System.out.println("nmbBoatCellTop : " + nmbBoatCellTop);
+        logger.info("calculBestCoordToAttackFromAtLeastTwoRevealedBoatCell");
+        logger.info("cell.getX() : " + cell.getX());
+        logger.info("cell.getY() : " + cell.getY());
+        logger.info("nmbBoatCellRight : " + nmbBoatCellRight);
+        logger.info("nmbBoatCellLeft : " + nmbBoatCellLeft);
+        logger.info("nmbBoatCellBottom : " + nmbBoatCellBottom);
+        logger.info("nmbBoatCellTop : " + nmbBoatCellTop);
 
         if (nmbBoatCellRight > 1) {
             CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX() + nmbBoatCellRight, cell.getY()), new CoordinateDTO(cell.getX() - nmbBoatCellLeft, cell.getY()), grid);
@@ -187,9 +175,8 @@ public class IaPlayerServiceImpl implements IaPlayerService {
 
 
         if (nmbBoatCellTop > 1) {
-            CoordinateDTO coordinateTarget = chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), grid);
+            return chooseBetterCellToAttackBetweenTwo(new CoordinateDTO(cell.getX(), cell.getY() - nmbBoatCellTop), new CoordinateDTO(cell.getX(), cell.getY() + nmbBoatCellBottom), grid);
 
-            return coordinateTarget;
         }
 
         return null;
@@ -213,19 +200,41 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         return null;
     }
 
-    public CoordinateDTO calculBestCoordToAttackFromOneUncoverBoatCell(GridDTO grid, CellDTO cell) {
-        int[][] directions = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+    public CoordinateDTO calculBestCoordToAttackFromOneUncoverBoatCell(GridDTO grid, List<BoatType> boatsTypesToFinds, CellDTO cell) {
 
-        for (int[] dir : directions) {
-            int targetX = cell.getX() + dir[0];
-            int targetY = cell.getY() + dir[1];
+        int numberOfHorizontalPosition =
+                boatsTypesToFinds.stream().map(boatType ->
+                        gridService.countNumberOfPositionTheBoatCanTakeInTheCoordinateWithDirection(grid, boatType, new CoordinateDTO(cell.getX(), cell.getY()), true)
+                ).mapToInt(Integer::intValue).sum();
 
-            if (grid.isInTheGrid(targetX, targetY) && !grid.getCell(targetX, targetY).isRevealed()) {
-                return new CoordinateDTO(targetX, targetY);
+        int numberOfVerticalPosition =
+                boatsTypesToFinds.stream().map(boatType ->
+                        gridService.countNumberOfPositionTheBoatCanTakeInTheCoordinateWithDirection(grid, boatType, new CoordinateDTO(cell.getX(), cell.getY()), false)
+                ).mapToInt(Integer::intValue).sum();
+
+        if (numberOfHorizontalPosition > numberOfVerticalPosition && numberOfHorizontalPosition > 0) {
+            int numberUnrevealedCellLeft = gridService.countNumberOfUnrevealedCellFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), -1, 0);
+            int numberUnrevealedCellRight = gridService.countNumberOfUnrevealedCellFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 1, 0);
+
+            if (numberUnrevealedCellLeft > numberUnrevealedCellRight) {
+                return new CoordinateDTO(cell.getX() - 1, cell.getY());
             }
+
+            return new CoordinateDTO(cell.getX() + 1, cell.getY());
+        }
+
+        if (numberOfVerticalPosition > 0) {
+            int numberUnrevealedCellBottom = gridService.countNumberOfUnrevealedCellFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 0, 1);
+            int numberUnrevealedCellTop = gridService.countNumberOfUnrevealedCellFromThisCoordinate(grid, new CoordinateDTO(cell.getX(), cell.getY()), 0, -1);
+
+            if (numberUnrevealedCellBottom > numberUnrevealedCellTop) {
+                return new CoordinateDTO(cell.getX(), cell.getY() + 1);
+            }
+            return new CoordinateDTO(cell.getX(), cell.getY() - 1);
         }
 
         return null;
+
     }
 
 

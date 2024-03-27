@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/bataille-navale/")
 public class GameRestController {
-
-
     GameEngineService gameEngine;
 
     @Autowired

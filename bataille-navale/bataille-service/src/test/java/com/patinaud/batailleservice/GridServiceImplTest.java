@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GridServiceImplTest {
 
@@ -287,5 +288,109 @@ public class GridServiceImplTest {
         );
     }
 
+    @Test
+    void countNumberOfPositionTheBoatCanTakeInTheCoordinate() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+        Assertions.assertEquals(6,
+                gridService.countNumberOfPositionTheBoatCanTakeInTheCoordinate(grid, BoatType.SOUS_MARIN_1, new CoordinateDTO(5, 5))
+        );
+    }
+
+
+    @Test
+    void countNumberOfPositionTheBoatCanTakeInTheCoordinateCurrentCellRevealed() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+
+        grid.getCell(5, 5).setRevealed(true);
+
+        Assertions.assertEquals(6,
+                gridService.countNumberOfPositionTheBoatCanTakeInTheCoordinate(grid, BoatType.SOUS_MARIN_1, new CoordinateDTO(5, 5))
+        );
+    }
+
+
+    @Test
+    void countNumberOfPositionTheBoatCanTakeInTheCoordinateAlreadyRevealedCell() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+        grid.getCell(5, 3).setRevealed(true);
+
+        Assertions.assertEquals(7,
+                gridService.countNumberOfPositionTheBoatCanTakeInTheCoordinate(grid, BoatType.PORTE_AVIONS, new CoordinateDTO(5, 5))
+        );
+    }
+
+
+    @Test
+    void countNumberOfPositionTheBoatCanTakeInTheCoordinateBorder() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+        Assertions.assertEquals(6,
+                gridService.countNumberOfPositionTheBoatCanTakeInTheCoordinate(grid, BoatType.PORTE_AVIONS, new CoordinateDTO(0, 5))
+        );
+    }
+
+
+    @Test
+    void countNumberOfPositionTheBoatCanTakeInTheCoordinateNoSolution() {
+
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+
+        grid.getCell(0, 3).setRevealed(true);
+        grid.getCell(0, 6).setRevealed(true);
+        grid.getCell(2, 5).setRevealed(true);
+
+
+        Assertions.assertEquals(0,
+                gridService.countNumberOfPositionTheBoatCanTakeInTheCoordinate(grid, BoatType.PORTE_AVIONS, new CoordinateDTO(0, 5))
+        );
+    }
+
+
+    @Test
+    void countNumberOfPositionBoatsCanTakeInTheCoordinate() {
+        GridService gridService = new GridServiceImpl();
+        GridDTO grid = gridService.generateEmptyGrid(10, 10);
+
+
+        Assertions.assertEquals(11,
+                gridService.countNumberOfPositionBoatsCanTakeInTheCoordinate(grid, List.of(BoatType.PORTE_AVIONS, BoatType.CROISEUR), new CoordinateDTO(0, 5))
+        );
+    }
+
+
+    @Test
+    void countNumberOfPositionTheBoatCanTakeInTheCoordinateFullGrid() {
+
+
+        GridService gridService = new GridServiceImpl();
+
+        GridDTO grid = gridService.generateEmptyGrid(3, 3);
+        grid.getCell(0, 0).setRevealed(true);
+        grid.getCell(1, 0).setRevealed(true);
+        grid.getCell(2, 0).setRevealed(true);
+        grid.getCell(0, 1).setRevealed(true);
+        grid.getCell(0, 2).setRevealed(true);
+        grid.getCell(1, 2).setRevealed(true);
+        grid.getCell(2, 2).setRevealed(true);
+
+
+        Assertions.assertEquals(1,
+                gridService.countNumberOfPositionTheBoatCanTakeInTheCoordinate(grid, BoatType.TORPILLEUR, new CoordinateDTO(2, 1))
+        );
+
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.patinaud.batailleservice.service;
 
+import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
@@ -117,4 +118,35 @@ public class GridServiceImpl implements GridService {
         return inc - 1;
     }
 
+
+    public int countNumberOfPositionTheBoatCanTakeInTheCoordinate(GridDTO grid, BoatType boatType, CoordinateDTO coordinate) {
+        return countNumberOfPositionTheBoatCanTakeInTheCoordinateWithDirection(grid, boatType, coordinate, true)
+                + countNumberOfPositionTheBoatCanTakeInTheCoordinateWithDirection(grid, boatType, coordinate, false);
+    }
+
+    public int countNumberOfPositionTheBoatCanTakeInTheCoordinateWithDirection(GridDTO grid, BoatType boatType, CoordinateDTO coordinate, boolean horizontalDirection) {
+        int numberUnrevealedCellLeft = countNumberOfUnrevealedCellFromThisCoordinate(grid, coordinate, horizontalDirection ? -1 : 0, !horizontalDirection ? -1 : 0);
+        int numberUnrevealedCellRight = countNumberOfUnrevealedCellFromThisCoordinate(grid, coordinate, horizontalDirection ? 1 : 0, !horizontalDirection ? 1 : 0);
+
+        int horizontalSpace = numberUnrevealedCellLeft + numberUnrevealedCellRight + 1;
+
+        int numberOfPosition = 0;
+
+        if (boatType.getSize() <= horizontalSpace) {
+            numberOfPosition = numberOfPosition +
+                    Math.min(
+                            Math.min(boatType.getSize(), horizontalSpace - boatType.getSize() + 1),
+                            Math.min(numberUnrevealedCellLeft + 1, numberUnrevealedCellRight + 1)
+                    );
+        }
+
+
+        return numberOfPosition;
+    }
+
+
+    public int countNumberOfPositionBoatsCanTakeInTheCoordinate(GridDTO grid, List<BoatType> boatTypes, CoordinateDTO coordinate) {
+        if (boatTypes == null) return 0;
+        return boatTypes.stream().map(boatType -> countNumberOfPositionTheBoatCanTakeInTheCoordinate(grid, boatType, coordinate)).mapToInt(Integer::intValue).sum();
+    }
 }

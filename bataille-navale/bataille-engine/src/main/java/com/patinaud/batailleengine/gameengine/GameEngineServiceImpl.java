@@ -1,12 +1,14 @@
 package com.patinaud.batailleengine.gameengine;
 
+import com.patinaud.bataillecommunication.communication.PlayerCommunicationService;
 import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
-import com.patinaud.bataillecommunication.communication.PlayerCommunicationService;
 import com.patinaud.bataillepersistence.persistence.PersistenceService;
 import com.patinaud.batailleplayer.ia.IaPlayerService;
 import com.patinaud.batailleservice.service.GridService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +19,12 @@ import java.util.UUID;
 @Service
 public class GameEngineServiceImpl implements GameEngineService {
 
+    private static final Logger logger = LoggerFactory.getLogger(GameEngineServiceImpl.class);
     PlayerCommunicationService playerCommunicationService;
     PersistenceService persistenceService;
     IaPlayerService iaPlayerService;
-
     GridService gridService;
+
 
     @Autowired
     public GameEngineServiceImpl(PlayerCommunicationService playerCommunicationService, PersistenceService persistenceService, IaPlayerService iaPlayerService, GridService gridService) {
@@ -29,10 +32,11 @@ public class GameEngineServiceImpl implements GameEngineService {
         this.persistenceService = persistenceService;
         this.iaPlayerService = iaPlayerService;
         this.gridService = gridService;
+        
     }
 
     public GameDTO generateNewGame() {
-        String idGame = System.currentTimeMillis() + "W" + UUID.randomUUID().toString();
+        String idGame = System.currentTimeMillis() + "W" + UUID.randomUUID();
 
 
         GameDTO game = new GameDTO();

@@ -44,10 +44,20 @@ class IaPlayerServiceTest {
     void randomlyTargetACoveredCellNull() {
         GridService gridService = new GridServiceImpl();
         IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
-        CoordinateDTO coordinate = ia.randomlyTargetACoveredCell(generateEmptyGrid(10, 10));
+        CoordinateDTO coordinate = ia.randomlyTargetAnUnrevealedCell(generateEmptyGrid(10, 10), List.of(BoatType.SOUS_MARIN_1));
 
         Assertions.assertNotNull(coordinate);
 
+    }
+
+    @Test
+    void randomlyTargetAnUnrevealedCellGridFull() {
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
+        CoordinateDTO coordinate = ia.randomlyTargetAnUnrevealedCell(generateEmptyGrid(4, 4), List.of(BoatType.PORTE_AVIONS));
+
+        Assertions.assertNull(coordinate);
     }
 
 
@@ -167,15 +177,16 @@ class IaPlayerServiceTest {
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
-        grid.updateCell(createRevealedCellDto(0, 5, true));
-        grid.updateCell(createRevealedCellDto(1, 5, true));
+        grid.updateCell(createRevealedCellDto(5, 5, true));
+        grid.updateCell(createRevealedCellDto(6, 5, true));
+        grid.updateCell(createRevealedCellDto(7, 5, false));
 
         List<BoatType> boatsToFinds = new ArrayList<>();
         boatsToFinds.add(BoatType.TORPILLEUR);
 
         CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
-        Assertions.assertEquals(2, coordinateTargeted.getX());
+        Assertions.assertEquals(4, coordinateTargeted.getX());
         Assertions.assertEquals(5, coordinateTargeted.getY());
 
     }
@@ -188,15 +199,16 @@ class IaPlayerServiceTest {
 
 
         GridDTO grid = generateEmptyGrid(10, 10);
-        grid.updateCell(createRevealedCellDto(1, 5, true));
-        grid.updateCell(createRevealedCellDto(0, 5, true));
+        grid.updateCell(createRevealedCellDto(6, 5, true));
+        grid.updateCell(createRevealedCellDto(5, 5, true));
+        grid.updateCell(createRevealedCellDto(7, 5, false));
 
         List<BoatType> boatsToFinds = new ArrayList<>();
         boatsToFinds.add(BoatType.TORPILLEUR);
 
         CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
-        Assertions.assertEquals(2, coordinateTargeted.getX());
+        Assertions.assertEquals(4, coordinateTargeted.getX());
         Assertions.assertEquals(5, coordinateTargeted.getY());
 
     }
@@ -557,9 +569,12 @@ class IaPlayerServiceTest {
 
         GridDTO grid = generateEmptyGrid(10, 10);
         grid.updateCell(createRevealedCellDto(1, 1, true));
+        grid.updateCell(createRevealedCellDto(1, 0, false));
+        grid.updateCell(createRevealedCellDto(1, 2, false));
+        grid.updateCell(createRevealedCellDto(0, 1, false));
 
 
-        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, createRevealedCellDto(1, 1, true));
+        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, List.of(BoatType.SOUS_MARIN_1), createRevealedCellDto(1, 1, true));
 
         Assertions.assertEquals(2, coordinateTargted.getX());
         Assertions.assertEquals(1, coordinateTargted.getY());
@@ -579,10 +594,49 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(1, 0, false));
         grid.updateCell(createRevealedCellDto(1, 2, false));
 
-        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, createRevealedCellDto(1, 1, true));
+        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, List.of(BoatType.TORPILLEUR), createRevealedCellDto(1, 1, true));
 
         Assertions.assertEquals(0, coordinateTargted.getX());
         Assertions.assertEquals(1, coordinateTargted.getY());
+    }
+
+    @Test
+    void calculBestCoordToAttackFromOneUncoverBoatCellVertUp() {
+
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
+
+        GridDTO grid = generateEmptyGrid(10, 10);
+        grid.updateCell(createRevealedCellDto(1, 1, true));
+        grid.updateCell(createRevealedCellDto(2, 1, false));
+        grid.updateCell(createRevealedCellDto(0, 1, false));
+        grid.updateCell(createRevealedCellDto(1, 2, false));
+
+        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, List.of(BoatType.TORPILLEUR), createRevealedCellDto(1, 1, true));
+
+        Assertions.assertEquals(1, coordinateTargted.getX());
+        Assertions.assertEquals(0, coordinateTargted.getY());
+    }
+
+
+    @Test
+    void calculBestCoordToAttackFromOneUncoverBoatCellLeft() {
+
+
+        GridService gridService = new GridServiceImpl();
+        IaPlayerServiceImpl ia = new IaPlayerServiceImpl(gridService);
+
+        GridDTO grid = generateEmptyGrid(10, 10);
+        grid.updateCell(createRevealedCellDto(5, 5, true));
+        grid.updateCell(createRevealedCellDto(6, 5, false));
+        grid.updateCell(createRevealedCellDto(5, 4, false));
+        grid.updateCell(createRevealedCellDto(5, 6, false));
+
+        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, List.of(BoatType.PORTE_AVIONS), createRevealedCellDto(5, 5, true));
+
+        Assertions.assertEquals(4, coordinateTargted.getX());
+        Assertions.assertEquals(5, coordinateTargted.getY());
     }
 
 
@@ -599,7 +653,7 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(0, 1, false));
         grid.updateCell(createRevealedCellDto(1, 0, false));
 
-        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, createRevealedCellDto(1, 1, true));
+        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, List.of(BoatType.SOUS_MARIN_1), createRevealedCellDto(1, 1, true));
 
         Assertions.assertEquals(1, coordinateTargted.getX());
         Assertions.assertEquals(2, coordinateTargted.getY());
@@ -619,7 +673,7 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(0, 1, false));
         grid.updateCell(createRevealedCellDto(1, 2, false));
 
-        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, createRevealedCellDto(1, 1, true));
+        CoordinateDTO coordinateTargted = ia.calculBestCoordToAttackFromOneUncoverBoatCell(grid, List.of(BoatType.TORPILLEUR), createRevealedCellDto(1, 1, true));
 
         Assertions.assertEquals(1, coordinateTargted.getX());
         Assertions.assertEquals(0, coordinateTargted.getY());
