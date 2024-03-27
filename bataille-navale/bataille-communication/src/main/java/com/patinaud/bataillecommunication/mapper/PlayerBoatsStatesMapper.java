@@ -6,13 +6,14 @@ import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerBoatsStatesMapper {
     private PlayerBoatsStatesMapper() {
         throw new IllegalStateException("Utility class");
     }
 
-    public static PlayerBoatsStates fromDtoToResponse(IdPlayer idPlayer, ArrayList<BoatDTO> boatsDtos) {
+    public static PlayerBoatsStates fromDtoToResponse(IdPlayer idPlayer, List<BoatDTO> boatsDtos) {
         PlayerBoatsStates playerBoatsStates = new PlayerBoatsStates();
         playerBoatsStates.setIdPlayer(idPlayer);
 

@@ -1,4 +1,4 @@
-package com.patinaud.batailleplayer.ia;
+package com.patinaud.batailleplayer.model;
 
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
 

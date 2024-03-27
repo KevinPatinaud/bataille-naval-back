@@ -2,25 +2,21 @@ package com.patinaud.bataillepersistence.persistence;
 
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
-import com.patinaud.bataillemodel.dto.BoatDTO;
-import com.patinaud.bataillemodel.dto.CellDTO;
-import com.patinaud.bataillemodel.dto.CoordinateDTO;
-import com.patinaud.bataillemodel.dto.GridDTO;
+import com.patinaud.bataillemodel.dto.*;
 import com.patinaud.bataillepersistence.dao.BoatRepository;
 import com.patinaud.bataillepersistence.dao.CellRepository;
 import com.patinaud.bataillepersistence.dao.GameRepository;
 import com.patinaud.bataillepersistence.dao.PlayerRepository;
-import com.patinaud.bataillepersistence.entity.Boat;
-import com.patinaud.bataillepersistence.entity.Cell;
-import com.patinaud.bataillepersistence.entity.Game;
-import com.patinaud.bataillepersistence.entity.Player;
+import com.patinaud.bataillepersistence.entity.*;
 import com.patinaud.bataillepersistence.mapper.BoatMapper;
 import com.patinaud.bataillepersistence.mapper.CellMapper;
+import com.patinaud.bataillepersistence.mapper.GameMapper;
 import com.patinaud.bataillepersistence.mapper.GridMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class PersistenceServiceImpl implements PersistenceService {
@@ -42,59 +38,24 @@ public class PersistenceServiceImpl implements PersistenceService {
         this.boatRepository = boatRepository;
     }
 
-    public void initializeGame(String idGame) {
 
-        Game game = new Game();
-        game.setIdGame(idGame);
-        game.setIdPlayerTurn(IdPlayer.PLAYER_1);
-        gameRepository.save(game);
+    public void saveGrid(String idGame, IdPlayer idPlayer, GridDTO grid) {
+        Player player = playerRepository.findByGame(idGame, idPlayer);
+        List<Cell> playerCells = GridMapper.toCellsEntities(grid, player);
+        cellRepository.saveAll(playerCells);
+    }
 
-        Player player1 = new Player();
-        player1.setIdPlayer(IdPlayer.PLAYER_1);
-        player1.setGame(game);
-        player1.setIA(false);
-        playerRepository.save(player1);
+    public void saveGame(GameDTO gameDto) {
+        gameRepository.save(GameMapper.toEntity(gameDto));
+    }
 
 
-        ArrayList<Cell> player1Cells = new ArrayList<>();
-        for (int x = 0; x < 10; x++) {
-            for (int y = 0; y < 10; y++) {
-                Cell cell = new Cell();
-                cell.setX(x);
-                cell.setY(y);
-                cell.setPlayer(player1);
-                cell.setRevealed(false);
-                cell.setOccupied(false);
-                player1Cells.add(cell);
-            }
-        }
-        cellRepository.saveAll(player1Cells);
-
-        Player player2 = new Player();
-        player2.setIdPlayer(IdPlayer.PLAYER_2);
-        player2.setGame(game);
-        player2.setIA(true);
-        playerRepository.save(player2);
-
-
-        ArrayList<Cell> player2Cells = new ArrayList<>();
-        for (int x = 0; x < 10; x++) {
-            for (int y = 0; y < 10; y++) {
-                Cell cell = new Cell();
-                cell.setX(x);
-                cell.setY(y);
-                cell.setPlayer(player2);
-                cell.setRevealed(false);
-                cell.setOccupied(false);
-                player2Cells.add(cell);
-            }
-        }
-        cellRepository.saveAll(player2Cells);
-
+    public void savePlayer(PlayerDTO playerDto) {
+        playerRepository.save(PlayerMapper.toEntity(playerDto));
     }
 
     @Override
-    public ArrayList<CellDTO> getRevealedCells(String idGame, IdPlayer idPlayer) {
+    public List<CellDTO> getRevealedCells(String idGame, IdPlayer idPlayer) {
         return CellMapper.toDtos(cellRepository.findRevealedCells(idGame, idPlayer));
     }
 

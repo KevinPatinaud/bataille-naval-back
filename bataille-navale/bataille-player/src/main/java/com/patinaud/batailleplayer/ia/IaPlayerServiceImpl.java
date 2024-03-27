@@ -5,6 +5,7 @@ import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
 import com.patinaud.bataillemodel.dto.GridDTO;
+import com.patinaud.batailleplayer.model.PonderationCell;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -45,7 +46,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         }
 
 
-        if (!thePositionIsFree(boatToPosition, alreadyPositionnedBoats)) {
+        if (!thePositionIsFreeOfOtherBoats(boatToPosition, alreadyPositionnedBoats)) {
             return findAPositionForTheBoat(boatType, alreadyPositionnedBoats, grid);
         }
 
@@ -65,7 +66,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
         return false;
     }
 
-    public boolean thePositionIsFree(BoatDTO boat, List<BoatDTO> alreadyPositionedBoats) {
+    public boolean thePositionIsFreeOfOtherBoats(BoatDTO boat, List<BoatDTO> alreadyPositionedBoats) {
 
         for (int i = 0; i < boat.getBoatType().getSize(); i++) {
             int x = boat.getxHead() + (boat.isHorizontal() ? i : 0);
@@ -103,7 +104,7 @@ public class IaPlayerServiceImpl implements IaPlayerService {
     }
 
 
-    public CoordinateDTO iaAttack(GridDTO grid) {
+    public CoordinateDTO iaAttack(GridDTO grid, List<BoatType> boatsToFinds) {
 
         CoordinateDTO coordinateToAttack = calculBestCoordToAttack(grid);
         if (coordinateToAttack != null) {

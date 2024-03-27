@@ -2,24 +2,26 @@ package com.patinaud.bataillepersistence.persistence;
 
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
-import com.patinaud.bataillemodel.dto.BoatDTO;
-import com.patinaud.bataillemodel.dto.CellDTO;
-import com.patinaud.bataillemodel.dto.CoordinateDTO;
-import com.patinaud.bataillemodel.dto.GridDTO;
+import com.patinaud.bataillemodel.dto.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface PersistenceService {
 
-    public void initializeGame(String idGame);
-
-    public void revealCell(String idGame, IdPlayer idPlayer, CoordinateDTO coordinate);
-
-    public ArrayList<CellDTO> getRevealedCells(String idGame, IdPlayer idPlayer);
+    public void saveGrid(String idGame, IdPlayer idPlayer, GridDTO grid);
 
     public GridDTO getGrid(String idGame, IdPlayer idPlayer);
 
-    public ArrayList<BoatDTO> getBoats(String idGame, IdPlayer idPlayer);
+    public void revealCell(String idGame, IdPlayer idPlayer, CoordinateDTO coordinate);
+
+    public List<CellDTO> getRevealedCells(String idGame, IdPlayer idPlayer);
+
+    public void saveGame(GameDTO gameDto);
+
+    public void savePlayer(PlayerDTO playerDto);
+
+    public List<BoatDTO> getBoats(String idGame, IdPlayer idPlayer);
 
     public boolean isAllBoatDestroyed(String idGame, IdPlayer idPlayer);
 

@@ -1,8 +1,12 @@
 package com.patinaud.bataillemodel.dto;
 
+import com.patinaud.bataillemodel.constants.IdPlayer;
+
 public class GameDTO {
 
     private String idGame;
+
+    private IdPlayer idPlayerTurn;
 
     public String getIdGame() {
         return idGame;
@@ -10,5 +14,13 @@ public class GameDTO {
 
     public void setIdGame(String idGame) {
         this.idGame = idGame;
+    }
+
+    public IdPlayer getIdPlayerTurn() {
+        return idPlayerTurn;
+    }
+
+    public void setIdPlayerTurn(IdPlayer idPlayerTurn) {
+        this.idPlayerTurn = idPlayerTurn;
     }
 }

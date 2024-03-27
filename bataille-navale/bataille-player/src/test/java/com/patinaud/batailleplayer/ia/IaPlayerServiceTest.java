@@ -194,7 +194,7 @@ class IaPlayerServiceTest {
         ArrayList<BoatDTO> boatsAlreadyPositioned = new ArrayList<>();
         boatsAlreadyPositioned.add(boatAlreadyPositioned);
 
-        Assertions.assertTrue(ia.thePositionIsFree(boatToPosition, boatsAlreadyPositioned));
+        Assertions.assertTrue(ia.thePositionIsFreeOfOtherBoats(boatToPosition, boatsAlreadyPositioned));
     }
 
 
@@ -218,7 +218,7 @@ class IaPlayerServiceTest {
         ArrayList<BoatDTO> boatsAlreadyPositioned = new ArrayList<>();
         boatsAlreadyPositioned.add(boatAlreadyPositioned);
 
-        Assertions.assertTrue(ia.thePositionIsFree(boatToPosition, boatsAlreadyPositioned));
+        Assertions.assertTrue(ia.thePositionIsFreeOfOtherBoats(boatToPosition, boatsAlreadyPositioned));
     }
 
     @Test
@@ -264,7 +264,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(6, 5, true));
 
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(7, coordinateTargeted.getX());
         Assertions.assertEquals(5, coordinateTargeted.getY());
@@ -281,7 +284,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(8, 5, true));
         grid.updateCell(createRevealedCellDto(9, 5, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(7, coordinateTargeted.getX());
         Assertions.assertEquals(5, coordinateTargeted.getY());
@@ -298,7 +304,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(9, 5, true));
         grid.updateCell(createRevealedCellDto(8, 5, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
 
         Assertions.assertEquals(7, coordinateTargeted.getX());
@@ -316,7 +325,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(0, 5, true));
         grid.updateCell(createRevealedCellDto(1, 5, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(2, coordinateTargeted.getX());
         Assertions.assertEquals(5, coordinateTargeted.getY());
@@ -333,7 +345,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(1, 5, true));
         grid.updateCell(createRevealedCellDto(0, 5, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(2, coordinateTargeted.getX());
         Assertions.assertEquals(5, coordinateTargeted.getY());
@@ -351,7 +366,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(3, 0, true));
         grid.updateCell(createRevealedCellDto(3, 1, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
 
         Assertions.assertEquals(3, coordinateTargeted.getX());
@@ -368,7 +386,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(3, 1, true));
         grid.updateCell(createRevealedCellDto(3, 0, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(3, coordinateTargeted.getX());
         Assertions.assertEquals(2, coordinateTargeted.getY());
@@ -386,7 +407,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(3, 8, true));
         grid.updateCell(createRevealedCellDto(3, 9, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(3, coordinateTargeted.getX());
         Assertions.assertEquals(7, coordinateTargeted.getY());
@@ -403,7 +427,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(3, 9, true));
         grid.updateCell(createRevealedCellDto(3, 8, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(3, coordinateTargeted.getX());
         Assertions.assertEquals(7, coordinateTargeted.getY());
@@ -422,7 +449,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(1, 4, true));
         grid.updateCell(createRevealedCellDto(1, 5, false));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(1, coordinateTargeted.getX());
         Assertions.assertEquals(2, coordinateTargeted.getY());
@@ -442,7 +472,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(5, 4, false));
         grid.updateCell(createRevealedCellDto(5, 5, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(5, coordinateTargeted.getX());
         Assertions.assertEquals(6, coordinateTargeted.getY());
@@ -460,7 +493,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(9, 3, true));
         grid.updateCell(createRevealedCellDto(9, 4, false));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(8, coordinateTargeted.getX());
         Assertions.assertEquals(3, coordinateTargeted.getY());
@@ -478,7 +514,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(1, 3, false));
         grid.updateCell(createRevealedCellDto(0, 2, false));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(0, coordinateTargeted.getX());
         Assertions.assertEquals(4, coordinateTargeted.getY());
@@ -496,7 +535,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(4, 9, false));
         grid.updateCell(createRevealedCellDto(6, 9, false));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(5, coordinateTargeted.getX());
         Assertions.assertEquals(8, coordinateTargeted.getY());
@@ -514,7 +556,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(4, 0, false));
         grid.updateCell(createRevealedCellDto(6, 0, false));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(5, coordinateTargeted.getX());
         Assertions.assertEquals(1, coordinateTargeted.getY());
@@ -536,7 +581,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(1, 2, false));
         grid.updateCell(createRevealedCellDto(2, 2, false));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertTrue(coordinateTargeted.getX() == 1 || coordinateTargeted.getX() == 2);
         Assertions.assertEquals(1, coordinateTargeted.getY());
@@ -559,7 +607,10 @@ class IaPlayerServiceTest {
 
         grid.updateCell(createRevealedCellDto(5, 2, false));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertNotNull(coordinateTargeted);
         Assertions.assertTrue(coordinateTargeted.getX() >= 0 && coordinateTargeted.getX() < 10);
@@ -590,7 +641,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(7, 1, true));
 
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(7, coordinateTargeted.getX());
         Assertions.assertEquals(0, coordinateTargeted.getY());
@@ -610,7 +664,10 @@ class IaPlayerServiceTest {
         grid.updateCell(createRevealedCellDto(8, 2, true));
         grid.updateCell(createRevealedCellDto(8, 3, true));
 
-        CoordinateDTO coordinateTargeted = ia.iaAttack(grid);
+        List<BoatType> boatsToFinds = new ArrayList<>();
+        boatsToFinds.add(BoatType.TORPILLEUR);
+
+        CoordinateDTO coordinateTargeted = ia.iaAttack(grid, boatsToFinds);
 
         Assertions.assertEquals(8, coordinateTargeted.getX());
         Assertions.assertEquals(4, coordinateTargeted.getY());

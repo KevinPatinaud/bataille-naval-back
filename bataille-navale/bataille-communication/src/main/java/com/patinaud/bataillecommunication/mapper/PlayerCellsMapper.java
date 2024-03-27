@@ -7,13 +7,14 @@ import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.CellDTO;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerCellsMapper {
     private PlayerCellsMapper() {
         throw new IllegalStateException("Utility class");
     }
 
-    public static PlayerCells fromDtosToResponses(IdPlayer idplayer, ArrayList<CellDTO> dtoCells) {
+    public static PlayerCells fromDtosToResponses(IdPlayer idplayer, List<CellDTO> dtoCells) {
         PlayerCells playerCells = new PlayerCells();
 
         playerCells.setIdPlayer(idplayer);
