@@ -2,17 +2,16 @@ package com.patinaud.bataillecommunication.communication;
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
-import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.EndGameResultDTO;
-
+import com.patinaud.bataillemodel.dto.GridDTO;
 
 import java.util.List;
 
 public interface PlayerCommunicationService {
 
-    public void diffuseRevealedCells(String idGame, IdPlayer idplayer, List<CellDTO> cells);
+    void diffuseGrid(String idGame, IdPlayer idplayer, GridDTO grid);
 
-    public void diffuseEndGame(String idGame, EndGameResultDTO endGameResult);
+    void diffuseEndGame(String idGame, EndGameResultDTO endGameResult);
 
-    public void diffuseBoatsStates(String idGame, IdPlayer idPlayer, List<BoatDTO> boats);
+    void diffuseBoats(String idGame, IdPlayer idPlayer, List<BoatDTO> boats);
 }

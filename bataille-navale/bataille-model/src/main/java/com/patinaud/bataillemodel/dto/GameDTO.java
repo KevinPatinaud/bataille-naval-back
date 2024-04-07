@@ -23,4 +23,8 @@ public class GameDTO {
     public void setIdPlayerTurn(IdPlayer idPlayerTurn) {
         this.idPlayerTurn = idPlayerTurn;
     }
+
+    public String toString() {
+        return "idGame : " + getIdGame() + ", idPlayerTurn : " + getIdPlayerTurn();
+    }
 }

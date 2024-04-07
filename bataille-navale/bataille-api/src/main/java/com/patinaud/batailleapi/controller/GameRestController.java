@@ -20,7 +20,6 @@ public class GameRestController {
         this.gameEngine = gameEngine;
     }
 
-
     @GetMapping("new-game")
     public Game generateNewGame() {
 

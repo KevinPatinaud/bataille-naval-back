@@ -27,6 +27,7 @@
         <module>bataille-player</module>
         <module>bataille-engine</module>
         <module>bataille-api</module>
+        <module>bataille-aspect</module>
     </modules>
 
 

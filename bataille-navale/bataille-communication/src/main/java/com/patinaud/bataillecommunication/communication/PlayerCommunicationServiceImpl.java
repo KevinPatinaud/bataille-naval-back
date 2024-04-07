@@ -8,14 +8,14 @@ import com.patinaud.bataillecommunication.mapper.PlayerCellsMapper;
 import com.patinaud.bataillemodel.constants.GameAction;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
-import com.patinaud.bataillemodel.dto.CellDTO;
 import com.patinaud.bataillemodel.dto.EndGameResultDTO;
+import com.patinaud.bataillemodel.dto.GridDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
-
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -24,9 +24,9 @@ public class PlayerCommunicationServiceImpl implements PlayerCommunicationServic
     private static final String DIFFUSE_PATH = "/diffuse/";
 
 
-    private SimpMessageSendingOperations messagingTemplate;
+    private final SimpMessageSendingOperations messagingTemplate;
 
-    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Autowired
     public PlayerCommunicationServiceImpl(SimpMessageSendingOperations messagingTemplate) {
@@ -35,10 +35,10 @@ public class PlayerCommunicationServiceImpl implements PlayerCommunicationServic
 
 
     @Override
-    public void diffuseRevealedCells(String idGame, IdPlayer idplayer, List<CellDTO> cells) {
-        this.messagingTemplate.convertAndSend(DIFFUSE_PATH + idGame + "/" + GameAction.REVEALED_CELLS.getValue(),
+    public void diffuseGrid(String idGame, IdPlayer idplayer, GridDTO grid) {
+        this.messagingTemplate.convertAndSend(DIFFUSE_PATH + idGame + "/" + GameAction.GRID.getValue(),
                 gson.toJson(
-                        PlayerCellsMapper.fromDtosToResponses(idplayer, cells)
+                        PlayerCellsMapper.fromDtosToResponses(idplayer, grid.getCells().stream().flatMap(List::stream).collect(Collectors.toList()))
                 )
         );
     }
@@ -53,8 +53,8 @@ public class PlayerCommunicationServiceImpl implements PlayerCommunicationServic
     }
 
     @Override
-    public void diffuseBoatsStates(String idGame, IdPlayer idPlayer, List<BoatDTO> boats) {
-        this.messagingTemplate.convertAndSend(DIFFUSE_PATH + idGame + "/" + GameAction.BOATS_STATES.getValue(),
+    public void diffuseBoats(String idGame, IdPlayer idPlayer, List<BoatDTO> boats) {
+        this.messagingTemplate.convertAndSend(DIFFUSE_PATH + idGame + "/" + GameAction.BOATS.getValue(),
                 gson.toJson(
                         PlayerBoatsStatesMapper.fromDtoToResponse(idPlayer, boats)
                 )

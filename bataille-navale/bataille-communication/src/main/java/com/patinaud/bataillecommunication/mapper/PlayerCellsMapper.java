@@ -24,6 +24,7 @@ public class PlayerCellsMapper {
             Cell cell = new Cell();
             cell.setX(dtoCells.get(i).getX());
             cell.setY(dtoCells.get(i).getY());
+            cell.setRevealed(dtoCells.get(i).isRevealed());
 
             cell.setCellContent(dtoCells.get(i).isOccupied() ? CellContent.BOAT : CellContent.NOTHING);
 

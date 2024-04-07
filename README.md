@@ -1,4 +1,4 @@
-![affiche jeu](./assets/Affiche.png)
+[![affiche jeu](./assets/Affiche.png)](http://domination-navale.com/)
 [![Lancer une partie](./assets/button_start.png)](http://domination-navale.com/)
 
 

@@ -7,23 +7,24 @@ import com.patinaud.bataillemodel.dto.*;
 import com.patinaud.bataillepersistence.persistence.PersistenceService;
 import com.patinaud.batailleplayer.ia.IaPlayerService;
 import com.patinaud.batailleservice.service.GridService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Random;
 
 @Service
 public class GameEngineServiceImpl implements GameEngineService {
 
-    private static final Logger logger = LoggerFactory.getLogger(GameEngineServiceImpl.class);
+    private final Random random = new Random();
     PlayerCommunicationService playerCommunicationService;
     PersistenceService persistenceService;
     IaPlayerService iaPlayerService;
     GridService gridService;
+    @Value("${ID_GAME_WORDS}")
+    private List<String> idGameWords;
 
 
     @Autowired
@@ -32,11 +33,16 @@ public class GameEngineServiceImpl implements GameEngineService {
         this.persistenceService = persistenceService;
         this.iaPlayerService = iaPlayerService;
         this.gridService = gridService;
-        
+
+    }
+
+
+    public String generateIdGame() {
+        return idGameWords.get(random.nextInt(idGameWords.size() - 1)) + "_" + String.format("%04d", random.nextInt(10000));
     }
 
     public GameDTO generateNewGame() {
-        String idGame = System.currentTimeMillis() + "W" + UUID.randomUUID();
+        String idGame = generateIdGame();
 
 
         GameDTO game = new GameDTO();
@@ -116,8 +122,8 @@ public class GameEngineServiceImpl implements GameEngineService {
 
 
     private void diffuseInformationAboutPlayer(String idGame, IdPlayer idPlayer) {
-        playerCommunicationService.diffuseRevealedCells(idGame, idPlayer, persistenceService.getRevealedCells(idGame, idPlayer));
-        playerCommunicationService.diffuseBoatsStates(idGame, idPlayer, persistenceService.getBoats(idGame, idPlayer));
+        playerCommunicationService.diffuseGrid(idGame, idPlayer, persistenceService.getGrid(idGame, idPlayer));
+        playerCommunicationService.diffuseBoats(idGame, idPlayer, persistenceService.getBoats(idGame, idPlayer));
     }
 
     public void diffuseEndGameScore(String idGame, IdPlayer winner, IdPlayer looser) {

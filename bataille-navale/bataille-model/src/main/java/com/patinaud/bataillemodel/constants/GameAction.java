@@ -1,8 +1,8 @@
 package com.patinaud.bataillemodel.constants;
 
 public enum GameAction {
-    REVEALED_CELLS("revealedCells"),
-    BOATS_STATES("boatsStates"),
+    GRID("grid"),
+    BOATS("boats"),
     END_GAME("endGame");
 
     private final String value;
