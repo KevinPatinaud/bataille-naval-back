@@ -7,8 +7,12 @@ import com.patinaud.batailleapi.mapper.CoordinateMapper;
 import com.patinaud.batailleapi.requestdata.Boat;
 import com.patinaud.batailleapi.requestdata.Coordinate;
 import com.patinaud.batailleengine.gameengine.GameEngineService;
+import com.patinaud.bataillemodel.constants.IdPlayer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.*;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -18,7 +22,7 @@ public class GameWebSocketController {
 
     GameEngineService gameEngineService;
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     @Autowired
     public GameWebSocketController(GameEngineService gameEngineService) {
@@ -38,7 +42,7 @@ public class GameWebSocketController {
 
         List<Boat> boats = gson.fromJson(boatsJson, new TypeToken<List<Boat>>() {
         }.getType());
-        gameEngineService.positionHumanPlayerBoat(idGame, BoatMapper.toDtos(boats));
+        gameEngineService.positionHumanPlayerBoat(idGame, IdPlayer.PLAYER_1, BoatMapper.toDtos(boats));
     }
 
 
