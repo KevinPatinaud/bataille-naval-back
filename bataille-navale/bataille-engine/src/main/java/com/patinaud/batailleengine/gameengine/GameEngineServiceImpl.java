@@ -99,25 +99,21 @@ public class GameEngineServiceImpl implements GameEngineService {
     }
 
     @Override
-    public void positionHumanPlayerBoat(String idGame, List<BoatDTO> boats) {
-        persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_1, boats);
+    public void positionHumanPlayerBoat(String idGame, IdPlayer idPlayer, List<BoatDTO> boats) {
+        persistenceService.setBoatPosition(idGame, idPlayer, boats);
     }
 
 
     @Override
     public void playerAttack(String idGame, String idPlayerAttackerStr, CoordinateDTO coordinateTargeted) {
-        try {
 
-            IdPlayer idPlayerAttacker = IdPlayer.valueOf(idPlayerAttackerStr.toUpperCase());
-            IdPlayer idPlayerOpponent = getIdOpponent(idPlayerAttacker);
+        IdPlayer idPlayerAttacker = IdPlayer.valueOf(idPlayerAttackerStr.toUpperCase());
+        IdPlayer idPlayerOpponent = getIdOpponent(idPlayerAttacker);
 
-            revealCell(idGame, idPlayerAttacker, idPlayerOpponent, coordinateTargeted);
+        revealCell(idGame, idPlayerAttacker, idPlayerOpponent, coordinateTargeted);
 
-            iaPlay(idGame, idPlayerOpponent, idPlayerAttacker);
+        iaPlay(idGame, idPlayerOpponent, idPlayerAttacker);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -134,7 +130,7 @@ public class GameEngineServiceImpl implements GameEngineService {
     }
 
 
-    private IdPlayer getIdOpponent(IdPlayer idPlayer) {
+    public IdPlayer getIdOpponent(IdPlayer idPlayer) {
         return idPlayer.equals(IdPlayer.PLAYER_1) ? IdPlayer.PLAYER_2 : IdPlayer.PLAYER_1;
     }
 
