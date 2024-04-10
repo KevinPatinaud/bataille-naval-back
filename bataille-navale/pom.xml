@@ -28,6 +28,7 @@
         <module>bataille-engine</module>
         <module>bataille-api</module>
         <module>bataille-aspect</module>
+        <module>bataille-security</module>
     </modules>
 
 

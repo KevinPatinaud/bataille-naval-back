@@ -3,6 +3,7 @@ package com.patinaud.batailleengine.gameengine;
 import com.patinaud.bataillecommunication.communication.PlayerCommunicationService;
 import com.patinaud.batailleengine.config.TestConfiguration;
 import com.patinaud.bataillemodel.constants.BoatType;
+import com.patinaud.bataillemodel.constants.GameMode;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
 import com.patinaud.bataillepersistence.persistence.PersistenceService;
@@ -57,7 +58,7 @@ public class GameEngineServiceImplTest {
 
 
     @Test
-    public void generateNewGameTest() {
+    public void generateNewGameTest() throws Exception {
         Mockito.doNothing().when(persistenceServiceMock).saveGame(any());
         Mockito.doNothing().when(persistenceServiceMock).savePlayer(any());
         Mockito.doNothing().when(persistenceServiceMock).saveGrid(any(), any(), any());
@@ -66,7 +67,7 @@ public class GameEngineServiceImplTest {
 
         Mockito.when(gridServiceMock.generateEmptyGrid(Mockito.anyInt(), Mockito.anyInt())).thenReturn(new GridDTO());
 
-        GameDTO gameDTO = gameEngineService.generateNewGame();
+        GameDTO gameDTO = gameEngineService.generateNewGame("ID-GAME_1234", GameMode.SOLO);
 
         assertFalse(gameDTO.getIdGame().isEmpty());
 
