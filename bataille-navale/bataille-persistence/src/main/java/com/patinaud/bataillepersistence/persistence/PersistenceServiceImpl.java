@@ -7,7 +7,10 @@ import com.patinaud.bataillepersistence.dao.BoatRepository;
 import com.patinaud.bataillepersistence.dao.CellRepository;
 import com.patinaud.bataillepersistence.dao.GameRepository;
 import com.patinaud.bataillepersistence.dao.PlayerRepository;
-import com.patinaud.bataillepersistence.entity.*;
+import com.patinaud.bataillepersistence.entity.Boat;
+import com.patinaud.bataillepersistence.entity.Cell;
+import com.patinaud.bataillepersistence.entity.Player;
+import com.patinaud.bataillepersistence.entity.PlayerMapper;
 import com.patinaud.bataillepersistence.mapper.BoatMapper;
 import com.patinaud.bataillepersistence.mapper.CellMapper;
 import com.patinaud.bataillepersistence.mapper.GameMapper;
@@ -37,6 +40,9 @@ public class PersistenceServiceImpl implements PersistenceService {
         this.boatRepository = boatRepository;
     }
 
+    public boolean isGameExist(String idGame) {
+        return gameRepository.findById(idGame).isPresent();
+    }
 
     public void saveGrid(String idGame, IdPlayer idPlayer, GridDTO grid) {
         Player player = playerRepository.findByGame(idGame, idPlayer);
@@ -151,6 +157,7 @@ public class PersistenceServiceImpl implements PersistenceService {
 
                 if (revealedCells.get(iRevCell).getX() == xBoatHead + (boat.isHorizontal() ? inc : 0) && revealedCells.get(iRevCell).getY() == yBoatHead + (!boat.isHorizontal() ? inc : 0)) {
                     boatCellTouched = true;
+                    break;
                 }
             }
             if (!boatCellTouched) {

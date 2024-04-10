@@ -4,30 +4,32 @@ package com.patinaud.bataillepersistence.persistence;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
 
-
 import java.util.List;
 
 public interface PersistenceService {
 
-    public void saveGrid(String idGame, IdPlayer idPlayer, GridDTO grid);
 
-    public GridDTO getGrid(String idGame, IdPlayer idPlayer);
+    void saveGrid(String idGame, IdPlayer idPlayer, GridDTO grid);
 
-    public void revealCell(String idGame, IdPlayer idPlayer, CoordinateDTO coordinate);
+    GridDTO getGrid(String idGame, IdPlayer idPlayer);
 
-    public List<CellDTO> getRevealedCells(String idGame, IdPlayer idPlayer);
+    void revealCell(String idGame, IdPlayer idPlayer, CoordinateDTO coordinate);
 
-    public void saveGame(GameDTO gameDto);
+    List<CellDTO> getRevealedCells(String idGame, IdPlayer idPlayer);
 
-    public void savePlayer(PlayerDTO playerDto);
+    boolean isGameExist(String idGame);
 
-    public List<BoatDTO> getBoats(String idGame, IdPlayer idPlayer);
+    void saveGame(GameDTO gameDto);
 
-    public boolean isAllBoatDestroyed(String idGame, IdPlayer idPlayer);
+    void savePlayer(PlayerDTO playerDto);
 
-    public void updateStateBoats(String idGame, IdPlayer idPlayer);
+    List<BoatDTO> getBoats(String idGame, IdPlayer idPlayer);
 
-    public void setBoatPosition(String idGame, IdPlayer idPlayer, List<BoatDTO> positionBoatOnGrid);
+    boolean isAllBoatDestroyed(String idGame, IdPlayer idPlayer);
 
-    public void revealCellsNextToDestroyedBoat(String idGame, IdPlayer idPlayer);
+    void updateStateBoats(String idGame, IdPlayer idPlayer);
+
+    void setBoatPosition(String idGame, IdPlayer idPlayer, List<BoatDTO> positionBoatOnGrid);
+
+    void revealCellsNextToDestroyedBoat(String idGame, IdPlayer idPlayer);
 }

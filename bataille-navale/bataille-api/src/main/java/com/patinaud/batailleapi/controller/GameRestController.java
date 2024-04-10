@@ -3,11 +3,9 @@ package com.patinaud.batailleapi.controller;
 import com.patinaud.batailleapi.mapper.GameMapper;
 import com.patinaud.batailleapi.requestdata.Game;
 import com.patinaud.batailleengine.gameengine.GameEngineService;
+import com.patinaud.bataillemodel.constants.GameMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -20,11 +18,15 @@ public class GameRestController {
         this.gameEngine = gameEngine;
     }
 
+
+    @GetMapping("new-id-game")
+    public Game generateNewIdGame() {
+        return new Game(gameEngine.generateIdGame());
+    }
+
     @GetMapping("new-game")
-    public Game generateNewGame() {
-
-        return GameMapper.toResponse(gameEngine.generateNewGame());
-
+    public Game generateNewGame(@RequestParam(name = "idGame") String idGame, @RequestParam(name = "gameMode") GameMode gameMode) throws Exception {
+        return GameMapper.toResponse(gameEngine.generateNewGame(idGame, gameMode));
     }
 
 }
