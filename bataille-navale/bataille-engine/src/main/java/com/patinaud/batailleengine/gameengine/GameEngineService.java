@@ -1,5 +1,6 @@
 package com.patinaud.batailleengine.gameengine;
 
+import com.patinaud.bataillemodel.constants.GameMode;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 import com.patinaud.bataillemodel.dto.CoordinateDTO;
@@ -9,7 +10,10 @@ import java.util.List;
 
 public interface GameEngineService {
 
-    GameDTO generateNewGame();
+
+    String generateIdGame();
+
+    GameDTO generateNewGame(String idGame, GameMode gameMode) throws Exception;
 
     void positionHumanPlayerBoat(String idGame, IdPlayer idPlayer, List<BoatDTO> boats);
 

@@ -2,6 +2,7 @@ package com.patinaud.batailleengine.gameengine;
 
 import com.patinaud.bataillecommunication.communication.PlayerCommunicationService;
 import com.patinaud.bataillemodel.constants.BoatType;
+import com.patinaud.bataillemodel.constants.GameMode;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
 import com.patinaud.bataillepersistence.persistence.PersistenceService;
@@ -14,10 +15,12 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 @Service
 public class GameEngineServiceImpl implements GameEngineService {
 
+    private static final Pattern idGamePattern = Pattern.compile("^[A-Z0-9-]+_\\d{4}$");
     private final Random random = new Random();
     PlayerCommunicationService playerCommunicationService;
     PersistenceService persistenceService;
@@ -36,13 +39,28 @@ public class GameEngineServiceImpl implements GameEngineService {
 
     }
 
+    public static boolean isValidIdGame(String idGame) {
+        if (idGame == null || idGame.length() > 50) {
+            return false;
+        }
 
-    public String generateIdGame() {
-        return idGameWords.get(random.nextInt(idGameWords.size() - 1)) + "_" + String.format("%04d", random.nextInt(10000));
+        return idGamePattern.matcher(idGame).matches();
     }
 
-    public GameDTO generateNewGame() {
-        String idGame = generateIdGame();
+    public String generateIdGame() {
+        String idGame;
+        do {
+            idGame = idGameWords.get(random.nextInt(idGameWords.size())) + "_" + String.format("%04d", random.nextInt(10000));
+        } while (persistenceService.isGameExist(idGame));
+
+        return idGame;
+    }
+
+    public GameDTO generateNewGame(String idGame, GameMode gameMode) throws Exception {
+
+        if (!isValidIdGame(idGame) || persistenceService.isGameExist(idGame)) {
+            throw new Exception("id game invalid");
+        }
 
 
         GameDTO game = new GameDTO();
