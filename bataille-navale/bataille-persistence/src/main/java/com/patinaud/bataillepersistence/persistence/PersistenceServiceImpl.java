@@ -3,18 +3,12 @@ package com.patinaud.bataillepersistence.persistence;
 
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
-import com.patinaud.bataillepersistence.dao.BoatRepository;
-import com.patinaud.bataillepersistence.dao.CellRepository;
-import com.patinaud.bataillepersistence.dao.GameRepository;
-import com.patinaud.bataillepersistence.dao.PlayerRepository;
+import com.patinaud.bataillepersistence.dao.*;
 import com.patinaud.bataillepersistence.entity.Boat;
 import com.patinaud.bataillepersistence.entity.Cell;
 import com.patinaud.bataillepersistence.entity.Player;
-import com.patinaud.bataillepersistence.entity.PlayerMapper;
-import com.patinaud.bataillepersistence.mapper.BoatMapper;
-import com.patinaud.bataillepersistence.mapper.CellMapper;
-import com.patinaud.bataillepersistence.mapper.GameMapper;
-import com.patinaud.bataillepersistence.mapper.GridMapper;
+import com.patinaud.bataillepersistence.entity.User;
+import com.patinaud.bataillepersistence.mapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +26,15 @@ public class PersistenceServiceImpl implements PersistenceService {
 
     BoatRepository boatRepository;
 
+    UserRepository userRepository;
+
     @Autowired
-    public PersistenceServiceImpl(GameRepository gameRepository, PlayerRepository playerRepository, CellRepository cellRepository, BoatRepository boatRepository) {
+    public PersistenceServiceImpl(GameRepository gameRepository, PlayerRepository playerRepository, CellRepository cellRepository, BoatRepository boatRepository, UserRepository userRepository) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.cellRepository = cellRepository;
         this.boatRepository = boatRepository;
+        this.userRepository = userRepository;
     }
 
     public boolean isGameExist(String idGame) {
@@ -99,6 +96,7 @@ public class PersistenceServiceImpl implements PersistenceService {
             cellRepository.saveAll(cells);
         }
     }
+
 
     @Override
     public void setBoatPosition(String idGame, IdPlayer idPlayer, List<BoatDTO> positionBoatOnGrid) {
@@ -170,6 +168,18 @@ public class PersistenceServiceImpl implements PersistenceService {
     @Override
     public boolean isAllBoatDestroyed(String idGame, IdPlayer idPlayer) {
         return boatRepository.findBoatsByDestroyedState(idGame, idPlayer, false).isEmpty();
+    }
+
+
+    @Override
+    public boolean userExistByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    @Override
+    public UserDTO saveUser(UserDTO user) {
+        User userSaved = userRepository.save(UserMapper.toEntity(user));
+        return UserMapper.toDto(userSaved);
     }
 
 

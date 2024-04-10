@@ -1,33 +1,32 @@
 package com.patinaud.bataillesecurity.security;
 
+import com.patinaud.bataillemodel.dto.UserDTO;
+import com.patinaud.bataillepersistence.persistence.PersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
-public class AuthServiceImpl {
+@Service
+public class AuthServiceImpl implements AuthService {
 
-/*
-    @Autowired
-    private UserRepository userRepository;
-
- */
-
+    private final PersistenceService persistenceService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /*
-    public User registerUser(SignUpRequest signUpRequest) {
-        if(userRepository.existsByEmail(signUpRequest.getEmail())) {
+    @Autowired
+    public AuthServiceImpl(PersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
+    }
+
+    @Override
+    public UserDTO registerUser(UserDTO userDto) {
+        if (persistenceService.userExistByEmail(userDto.getEmail())) {
             throw new RuntimeException("Erreur: L'adresse email est déjà utilisée.");
         }
 
-        // Création d'un nouvel utilisateur
-        User user = new User();
-        user.setUsername(signUpRequest.getUsername());
-        user.setEmail(signUpRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+        UserDTO user = new UserDTO();
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        return userRepository.save(user);
+        return persistenceService.saveUser(user);
     }
-
-     */
 }
