@@ -20,20 +20,22 @@ public class GameRestController {
     @Autowired
     public GameRestController(GameEngineService gameEngine) {
         this.gameEngine = gameEngine;
-        gameEngine.hashCode();
     }
 
     @PostMapping("/")
     public Game generateNewGame(@RequestBody GameRequest gameRequest) throws Exception {
-        return GameMapper.toResponse(gameEngine.generateNewGame(gameRequest.getId(), gameRequest.getMode()));
+        return GameMapper.toResponse(gameEngine.generateNewGame(gameRequest.getMode()));
     }
 
-    @PostMapping("/newid")
-    public Game generateNewIdGame() {
-        Game response = new Game();
-        response.setId(gameEngine.generateIdGame());
-        return response;
+
+    @GetMapping("/{id}/iswaitingsecondplayer")
+    public Boolean isGameWaitingSecondPlayer(@PathVariable("id") String id) {
+        return gameEngine.isGameWaitingSecondPlayer(id);
     }
 
+    @PutMapping("/{id}/join")
+    public Boolean playerJoinGame(@PathVariable("id") String id) {
+        return true;
+    }
 
 }

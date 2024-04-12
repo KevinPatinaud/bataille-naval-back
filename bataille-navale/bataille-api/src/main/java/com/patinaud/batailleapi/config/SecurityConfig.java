@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.disable())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/websocket/*", "/game/*", "/api/*").permitAll()
+                        .requestMatchers("/websocket/**", "/game/**", "/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .logout((logout) -> logout.permitAll());

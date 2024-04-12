@@ -2,7 +2,7 @@ package com.patinaud.bataillemodel.constants;
 
 public enum GameMode {
     SOLO("solo"),
-    MULTI_PLAYER("multi_player");
+    MULTI("multi");
 
     private final String value;
 

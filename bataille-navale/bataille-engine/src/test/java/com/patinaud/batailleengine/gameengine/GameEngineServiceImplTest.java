@@ -67,7 +67,7 @@ public class GameEngineServiceImplTest {
 
         Mockito.when(gridServiceMock.generateEmptyGrid(Mockito.anyInt(), Mockito.anyInt())).thenReturn(new GridDTO());
 
-        GameDTO gameDTO = gameEngineService.generateNewGame("ID-GAME_1234", GameMode.SOLO);
+        GameDTO gameDTO = gameEngineService.generateNewGame(GameMode.SOLO);
 
         assertFalse(gameDTO.getId().isEmpty());
 

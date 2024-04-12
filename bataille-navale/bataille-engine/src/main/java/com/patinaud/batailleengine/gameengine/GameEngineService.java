@@ -13,7 +13,9 @@ public interface GameEngineService {
 
     String generateIdGame();
 
-    GameDTO generateNewGame(String idGame, GameMode gameMode) throws Exception;
+    GameDTO generateNewGame(GameMode gameMode) throws Exception;
+
+    boolean isGameWaitingSecondPlayer(String idGame);
 
     void positionHumanPlayerBoat(String idGame, IdPlayer idPlayer, List<BoatDTO> boats);
 

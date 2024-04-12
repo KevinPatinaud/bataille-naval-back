@@ -30,9 +30,7 @@ public class GameWebSocketController {
 
     @MessageMapping("/{idGame}/attack/{idPlayer}")
     public void processAttackFromPlayer(@DestinationVariable("idGame") String idGame, @DestinationVariable("idPlayer") String idPlayer, @Payload Coordinate coordinate) {
-
         gameEngineService.playerAttack(idGame, idPlayer, CoordinateMapper.toDto(coordinate));
-
     }
 
 

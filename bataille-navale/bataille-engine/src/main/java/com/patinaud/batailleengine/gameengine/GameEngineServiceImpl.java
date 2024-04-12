@@ -56,11 +56,9 @@ public class GameEngineServiceImpl implements GameEngineService {
         return idGame;
     }
 
-    public GameDTO generateNewGame(String idGame, GameMode gameMode) throws Exception {
+    public GameDTO generateNewGame(GameMode gameMode) throws Exception {
 
-        if (!isValidIdGame(idGame) || persistenceService.isGameExist(idGame)) {
-            throw new Exception("id game invalid");
-        }
+        String idGame = generateIdGame();
 
 
         GameDTO game = new GameDTO();
@@ -100,6 +98,10 @@ public class GameEngineServiceImpl implements GameEngineService {
         gameDTO.setId(idGame);
 
         return gameDTO;
+    }
+
+    public boolean isGameWaitingSecondPlayer(String idGame) {
+        return persistenceService.isGameExist(idGame);
     }
 
 
