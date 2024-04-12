@@ -1,15 +1,15 @@
-package com.patinaud.bataillemodel.dto;
+package com.patinaud.batailleapi.response;
 
 import com.patinaud.bataillemodel.constants.GameMode;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 
-public class GameDTO {
-
+public class Game {
     private String id;
 
     private GameMode mode;
 
     private IdPlayer idPlayerTurn;
+
 
     public String getId() {
         return id;
@@ -33,9 +33,5 @@ public class GameDTO {
 
     public void setIdPlayerTurn(IdPlayer idPlayerTurn) {
         this.idPlayerTurn = idPlayerTurn;
-    }
-
-    public String toString() {
-        return "idGame : " + getId() + ", idPlayerTurn : " + getIdPlayerTurn();
     }
 }

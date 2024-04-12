@@ -35,5 +35,5 @@ public interface PersistenceService {
 
     boolean userExistByEmail(String email);
 
-    UserDTO saveUser(UserDTO user);
+    UserDTO registerUser(UserDTO user);
 }

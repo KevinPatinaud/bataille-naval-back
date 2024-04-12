@@ -9,9 +9,6 @@ import com.patinaud.bataillepersistence.dao.GameRepository;
 import com.patinaud.bataillepersistence.dao.PlayerRepository;
 import com.patinaud.bataillepersistence.entity.Boat;
 import com.patinaud.bataillepersistence.entity.Cell;
-import com.patinaud.bataillepersistence.entity.Game;
-import com.patinaud.bataillepersistence.entity.Player;
-import com.patinaud.bataillepersistence.mapper.GridMapper;
 import com.patinaud.bataillepersistence.persistence.PersistenceServiceImpl;
 import com.patinaud.persistence.config.TestDatabaseConfiguration;
 import jakarta.transaction.Transactional;
@@ -71,7 +68,7 @@ class PersistenceServiceImplTest {
     private void initGame(String idGame, IdPlayer idPlayer) {
 
         GameDTO game = new GameDTO();
-        game.setIdGame(idGame);
+        game.setId(idGame);
 
 
         PlayerDTO player = new PlayerDTO();
@@ -82,7 +79,7 @@ class PersistenceServiceImplTest {
         persistenceServiceImpl.saveGame(game);
         persistenceServiceImpl.savePlayer(player);
 
-        persistenceServiceImpl.saveGrid(game.getIdGame(), player.getIdPlayer(), generateEmptyGrid(10, 10));
+        persistenceServiceImpl.saveGrid(game.getId(), player.getIdPlayer(), generateEmptyGrid(10, 10));
     }
 
     @Test
@@ -92,10 +89,10 @@ class PersistenceServiceImplTest {
         IdPlayer idPlayer = IdPlayer.PLAYER_1;
         initGame(idGame, idPlayer);
 
-        GridDTO grid =    persistenceServiceImpl.getGrid(idGame , idPlayer);
+        GridDTO grid = persistenceServiceImpl.getGrid(idGame, idPlayer);
 
-        Assertions.assertEquals(10 , grid.getWidth());
-        Assertions.assertEquals(10 , grid.getHeight());
+        Assertions.assertEquals(10, grid.getWidth());
+        Assertions.assertEquals(10, grid.getHeight());
 
     }
 

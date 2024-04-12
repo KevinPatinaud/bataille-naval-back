@@ -1,6 +1,6 @@
 package com.patinaud.batailleapi.mapper;
 
-import com.patinaud.batailleapi.requestdata.Boat;
+import com.patinaud.batailleapi.response.Boat;
 import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.dto.BoatDTO;
 

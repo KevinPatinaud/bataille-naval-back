@@ -1,4 +1,4 @@
-package com.patinaud.bataillesecurity.security;
+package com.patinaud.batailleapi.security;
 
 import com.patinaud.bataillemodel.dto.UserDTO;
 

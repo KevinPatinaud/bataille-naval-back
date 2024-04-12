@@ -1,4 +1,4 @@
-package com.patinaud.bataillesecurity.security;
+package com.patinaud.batailleapi.security;
 
 import com.patinaud.bataillemodel.dto.UserDTO;
 import com.patinaud.bataillepersistence.persistence.PersistenceService;
@@ -24,9 +24,8 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Erreur: L'adresse email est déjà utilisée.");
         }
 
-        UserDTO user = new UserDTO();
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        return persistenceService.saveUser(user);
+        return persistenceService.registerUser(userDto);
     }
 }

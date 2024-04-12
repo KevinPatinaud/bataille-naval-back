@@ -177,7 +177,7 @@ public class PersistenceServiceImpl implements PersistenceService {
     }
 
     @Override
-    public UserDTO saveUser(UserDTO user) {
+    public UserDTO registerUser(UserDTO user) {
         User userSaved = userRepository.save(UserMapper.toEntity(user));
         return UserMapper.toDto(userSaved);
     }

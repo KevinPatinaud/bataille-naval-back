@@ -69,10 +69,10 @@ public class GameEngineServiceImplTest {
 
         GameDTO gameDTO = gameEngineService.generateNewGame("ID-GAME_1234", GameMode.SOLO);
 
-        assertFalse(gameDTO.getIdGame().isEmpty());
+        assertFalse(gameDTO.getId().isEmpty());
 
         Mockito.verify(persistenceServiceMock).saveGame(argumentCaptorGameDTO.capture());
-        assertEquals(gameDTO.getIdGame(), argumentCaptorGameDTO.getValue().getIdGame());
+        assertEquals(gameDTO.getId(), argumentCaptorGameDTO.getValue().getId());
 
         Mockito.verify(persistenceServiceMock, Mockito.times(2)).savePlayer(argumentCaptorPlayerDTO.capture());
         assertEquals(IdPlayer.PLAYER_1, argumentCaptorPlayerDTO.getAllValues().get(0).getIdPlayer());

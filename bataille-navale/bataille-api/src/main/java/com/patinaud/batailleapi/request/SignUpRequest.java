@@ -1,19 +1,11 @@
-package com.patinaud.bataillemodel.dto;
+package com.patinaud.batailleapi.request;
 
-public class UserDTO {
-
+public class SignUpRequest {
     String username;
+
     String email;
+
     String password;
-
-    public UserDTO() {
-    }
-
-    public UserDTO(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
 
     public String getUsername() {
         return username;

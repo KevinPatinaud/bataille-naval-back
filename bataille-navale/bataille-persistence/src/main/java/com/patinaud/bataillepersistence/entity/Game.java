@@ -6,19 +6,19 @@ import jakarta.persistence.*;
 @Entity
 public class Game {
     @Id
-    @Column(name = "id_game")
-    private String idGame;
+    @Column(name = "id")
+    private String id;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "id_player_turn")
     private IdPlayer idPlayerTurn;
 
-    public String getIdGame() {
-        return idGame;
+    public String getId() {
+        return id;
     }
 
-    public void setIdGame(String idGame) {
-        this.idGame = idGame;
+    public void setId(String idGame) {
+        this.id = idGame;
     }
 
     public IdPlayer getIdPlayerTurn() {
