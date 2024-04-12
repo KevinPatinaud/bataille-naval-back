@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.patinaud.batailleapi.mapper.BoatMapper;
 import com.patinaud.batailleapi.mapper.CoordinateMapper;
-import com.patinaud.batailleapi.requestdata.Boat;
-import com.patinaud.batailleapi.requestdata.Coordinate;
+import com.patinaud.batailleapi.response.Boat;
+import com.patinaud.batailleapi.response.Coordinate;
 import com.patinaud.batailleengine.gameengine.GameEngineService;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,8 @@ import java.util.List;
 @Controller
 public class GameWebSocketController {
 
-    GameEngineService gameEngineService;
-
     private final Gson gson = new Gson();
+    GameEngineService gameEngineService;
 
     @Autowired
     public GameWebSocketController(GameEngineService gameEngineService) {

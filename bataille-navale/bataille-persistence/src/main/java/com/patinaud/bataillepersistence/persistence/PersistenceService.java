@@ -32,4 +32,8 @@ public interface PersistenceService {
     void setBoatPosition(String idGame, IdPlayer idPlayer, List<BoatDTO> positionBoatOnGrid);
 
     void revealCellsNextToDestroyedBoat(String idGame, IdPlayer idPlayer);
+
+    boolean userExistByEmail(String email);
+
+    UserDTO registerUser(UserDTO user);
 }

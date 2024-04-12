@@ -64,7 +64,7 @@ public class GameEngineServiceImpl implements GameEngineService {
 
 
         GameDTO game = new GameDTO();
-        game.setIdGame(idGame);
+        game.setId(idGame);
         game.setIdPlayerTurn(IdPlayer.PLAYER_1);
 
         persistenceService.saveGame(game);
@@ -97,7 +97,7 @@ public class GameEngineServiceImpl implements GameEngineService {
         positionIaPlayerBoats(idGame);
 
         GameDTO gameDTO = new GameDTO();
-        gameDTO.setIdGame(idGame);
+        gameDTO.setId(idGame);
 
         return gameDTO;
     }

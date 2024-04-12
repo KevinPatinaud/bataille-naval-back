@@ -1,4 +1,4 @@
-package com.patinaud.batailleapi.requestdata;
+package com.patinaud.batailleapi.response;
 
 public class Coordinate {
     int x;
