@@ -4,6 +4,10 @@ import com.patinaud.bataillemodel.dto.UserDTO;
 import com.patinaud.bataillepersistence.entity.User;
 
 public class UserMapper {
+    private UserMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static User toEntity(UserDTO dto) {
         User entity = new User();
         entity.setUsername(dto.getUsername());

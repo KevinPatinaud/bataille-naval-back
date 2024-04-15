@@ -15,10 +15,11 @@ public interface GameEngineService {
 
     GameDTO generateNewGame(GameMode gameMode) throws Exception;
 
-    boolean isGameWaitingSecondPlayer(String idGame);
+    boolean isGameWaitingForSecondPlayerJoin(String idGame);
 
-    void positionHumanPlayerBoat(String idGame, IdPlayer idPlayer, List<BoatDTO> boats);
+    void positionPlayerBoats(String idGame, IdPlayer idPlayer, List<BoatDTO> boats);
 
-    void playerAttack(String idGame, String idPlayerAttackerStr, CoordinateDTO coordinateTargeted);
+    void playerAttack(String idGame, IdPlayer idPlayer, CoordinateDTO coordinateTargeted);
 
+    boolean playerJoinGame(String id);
 }

@@ -4,7 +4,7 @@ import com.patinaud.batailleapi.mapper.GameMapper;
 import com.patinaud.batailleapi.request.GameRequest;
 import com.patinaud.batailleapi.response.Game;
 import com.patinaud.batailleengine.gameengine.GameEngineService;
-import com.patinaud.bataillepersistence.persistence.PersistenceService;
+import com.patinaud.bataillepersistence.persistence.PersistenceGameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +15,7 @@ public class GameRestController {
     GameEngineService gameEngine;
 
     @Autowired
-    PersistenceService persistenceService;
+    PersistenceGameService persistenceGameService;
 
     @Autowired
     public GameRestController(GameEngineService gameEngine) {
@@ -30,12 +30,12 @@ public class GameRestController {
 
     @GetMapping("/{id}/iswaitingsecondplayer")
     public Boolean isGameWaitingSecondPlayer(@PathVariable("id") String id) {
-        return gameEngine.isGameWaitingSecondPlayer(id);
+        return gameEngine.isGameWaitingForSecondPlayerJoin(id);
     }
 
     @PutMapping("/{id}/join")
     public Boolean playerJoinGame(@PathVariable("id") String id) {
-        return true;
+        return gameEngine.playerJoinGame(id);
     }
 
 }

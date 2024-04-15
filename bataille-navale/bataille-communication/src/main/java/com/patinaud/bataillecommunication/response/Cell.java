@@ -1,4 +1,4 @@
-package com.patinaud.bataillecommunication.responsedata;
+package com.patinaud.bataillecommunication.response;
 
 import com.patinaud.bataillemodel.constants.CellContent;
 

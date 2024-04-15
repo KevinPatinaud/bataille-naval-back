@@ -1,6 +1,6 @@
 package com.patinaud.bataillecommunication.mapper;
 
-import com.patinaud.bataillecommunication.responsedata.EndGameResult;
+import com.patinaud.bataillecommunication.response.EndGameResult;
 import com.patinaud.bataillemodel.dto.EndGameResultDTO;
 
 public class EndGameResultMapper {

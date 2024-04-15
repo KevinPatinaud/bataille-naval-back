@@ -1,5 +1,6 @@
 package com.patinaud.bataillepersistence.entity;
 
+import com.patinaud.bataillemodel.constants.GameMode;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import jakarta.persistence.*;
 
@@ -12,6 +13,11 @@ public class Game {
     @Enumerated(EnumType.STRING)
     @Column(name = "id_player_turn")
     private IdPlayer idPlayerTurn;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mode")
+    private GameMode mode;
 
     public String getId() {
         return id;
@@ -27,5 +33,13 @@ public class Game {
 
     public void setIdPlayerTurn(IdPlayer idPlayerTurn) {
         this.idPlayerTurn = idPlayerTurn;
+    }
+
+    public GameMode getMode() {
+        return mode;
+    }
+
+    public void setMode(GameMode mode) {
+        this.mode = mode;
     }
 }

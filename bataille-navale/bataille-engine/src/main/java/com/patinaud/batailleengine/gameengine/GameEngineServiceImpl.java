@@ -5,7 +5,7 @@ import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.constants.GameMode;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
-import com.patinaud.bataillepersistence.persistence.PersistenceService;
+import com.patinaud.bataillepersistence.persistence.PersistenceGameService;
 import com.patinaud.batailleplayer.ia.IaPlayerService;
 import com.patinaud.batailleservice.service.GridService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class GameEngineServiceImpl implements GameEngineService {
     private static final Pattern idGamePattern = Pattern.compile("^[A-Z0-9-]+_\\d{4}$");
     private final Random random = new Random();
     PlayerCommunicationService playerCommunicationService;
-    PersistenceService persistenceService;
+    PersistenceGameService persistenceGameService;
     IaPlayerService iaPlayerService;
     GridService gridService;
     @Value("${ID_GAME_WORDS}")
@@ -31,29 +31,33 @@ public class GameEngineServiceImpl implements GameEngineService {
 
 
     @Autowired
-    public GameEngineServiceImpl(PlayerCommunicationService playerCommunicationService, PersistenceService persistenceService, IaPlayerService iaPlayerService, GridService gridService) {
+    public GameEngineServiceImpl(PlayerCommunicationService playerCommunicationService, PersistenceGameService persistenceGameService, IaPlayerService iaPlayerService, GridService gridService) {
         this.playerCommunicationService = playerCommunicationService;
-        this.persistenceService = persistenceService;
+        this.persistenceGameService = persistenceGameService;
         this.iaPlayerService = iaPlayerService;
         this.gridService = gridService;
 
     }
 
-    public static boolean isValidIdGame(String idGame) {
-        if (idGame == null || idGame.length() > 50) {
-            return false;
-        }
-
-        return idGamePattern.matcher(idGame).matches();
+    public boolean isValidIdGame(String idGame) {
+        return idGame != null && idGame.length() < 50 && idGamePattern.matcher(idGame).matches() && persistenceGameService.isGameExist(idGame);
     }
 
     public String generateIdGame() {
         String idGame;
         do {
             idGame = idGameWords.get(random.nextInt(idGameWords.size())) + "_" + String.format("%04d", random.nextInt(10000));
-        } while (persistenceService.isGameExist(idGame));
+        } while (persistenceGameService.isGameExist(idGame));
 
         return idGame;
+    }
+
+    public boolean playerJoinGame(String idGame) {
+        if (!isValidIdGame(idGame)) {
+            return false;
+        }
+        playerCommunicationService.playerJoinTheGameEvent(idGame, IdPlayer.PLAYER_2);
+        return true;
     }
 
     public GameDTO generateNewGame(GameMode gameMode) throws Exception {
@@ -64,44 +68,45 @@ public class GameEngineServiceImpl implements GameEngineService {
         GameDTO game = new GameDTO();
         game.setId(idGame);
         game.setIdPlayerTurn(IdPlayer.PLAYER_1);
+        game.setMode(gameMode);
 
-        persistenceService.saveGame(game);
+        persistenceGameService.saveGame(game);
 
 
         PlayerDTO player1 = new PlayerDTO();
         player1.setIdPlayer(IdPlayer.PLAYER_1);
         player1.setGame(game);
         player1.setIA(false);
-        persistenceService.savePlayer(player1);
+        persistenceGameService.savePlayer(player1);
 
 
         GridDTO gridPlayer1 = gridService.generateEmptyGrid(10, 10);
 
-        persistenceService.saveGrid(idGame, player1.getIdPlayer(), gridPlayer1);
+        persistenceGameService.saveGrid(idGame, player1.getIdPlayer(), gridPlayer1);
 
 
         PlayerDTO player2 = new PlayerDTO();
         player2.setIdPlayer(IdPlayer.PLAYER_2);
         player2.setGame(game);
         player2.setIA(true);
-        persistenceService.savePlayer(player2);
+        persistenceGameService.savePlayer(player2);
 
 
         GridDTO gridPlayer2 = gridService.generateEmptyGrid(10, 10);
 
-        persistenceService.saveGrid(idGame, player2.getIdPlayer(), gridPlayer2);
+        persistenceGameService.saveGrid(idGame, player2.getIdPlayer(), gridPlayer2);
+
+        if (GameMode.SOLO.equals(gameMode)) {
+            positionIaPlayerBoats(idGame);
+        }
 
 
-        positionIaPlayerBoats(idGame);
-
-        GameDTO gameDTO = new GameDTO();
-        gameDTO.setId(idGame);
-
-        return gameDTO;
+        return game;
     }
 
-    public boolean isGameWaitingSecondPlayer(String idGame) {
-        return persistenceService.isGameExist(idGame);
+    public boolean isGameWaitingForSecondPlayerJoin(String idGame) {
+        // TODO completer les règles fonctionnelles !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        return persistenceGameService.isGameExist(idGame);
     }
 
 
@@ -114,39 +119,52 @@ public class GameEngineServiceImpl implements GameEngineService {
         boatsToPosition.add(BoatType.SOUS_MARIN_2);
         boatsToPosition.add(BoatType.TORPILLEUR);
 
-        persistenceService.setBoatPosition(idGame, IdPlayer.PLAYER_2, iaPlayerService.positionBoatOnGrid(boatsToPosition, gridService.generateEmptyGrid(10, 10)));
-
+        positionPlayerBoats(idGame, IdPlayer.PLAYER_2, iaPlayerService.positionBoatOnGrid(boatsToPosition, gridService.generateEmptyGrid(10, 10)));
     }
 
     @Override
-    public void positionHumanPlayerBoat(String idGame, IdPlayer idPlayer, List<BoatDTO> boats) {
-        persistenceService.setBoatPosition(idGame, idPlayer, boats);
+    public void positionPlayerBoats(String idGame, IdPlayer idPlayer, List<BoatDTO> boats) {
+        persistenceGameService.setBoatPosition(idGame, idPlayer, boats);
+        playerCommunicationService.playerPositionBoatsEvent(idGame, idPlayer);
     }
 
 
     @Override
-    public void playerAttack(String idGame, String idPlayerAttackerStr, CoordinateDTO coordinateTargeted) {
+    public void playerAttack(String idGame, IdPlayer idPlayerAttacker, CoordinateDTO coordinateTargeted) {
 
-        IdPlayer idPlayerAttacker = IdPlayer.valueOf(idPlayerAttackerStr.toUpperCase());
         IdPlayer idPlayerOpponent = getIdOpponent(idPlayerAttacker);
 
+        persistenceGameService.updateIdPlayerTurn(idGame, idPlayerOpponent);
         revealCell(idGame, idPlayerAttacker, idPlayerOpponent, coordinateTargeted);
 
-        iaPlay(idGame, idPlayerOpponent, idPlayerAttacker);
+
+        if (persistenceGameService.getGameMode(idGame).equals(GameMode.SOLO)) {
+            persistenceGameService.updateIdPlayerTurn(idGame, idPlayerAttacker);
+            iaPlay(idGame, idPlayerOpponent, idPlayerAttacker);
+        }
 
     }
 
 
-    private void diffuseInformationAboutPlayer(String idGame, IdPlayer idPlayer) {
-        playerCommunicationService.diffuseGrid(idGame, idPlayer, persistenceService.getGrid(idGame, idPlayer));
-        playerCommunicationService.diffuseBoats(idGame, idPlayer, persistenceService.getBoats(idGame, idPlayer));
+    private void diffuseGameState(String idGame) {
+
+        GameDTO game = persistenceGameService.getGame(idGame);
+
+        GridDTO gridPlayer1 = persistenceGameService.getGrid(idGame, IdPlayer.PLAYER_1);
+        List<BoatDTO> boatsPlayer1 = persistenceGameService.getBoats(idGame, IdPlayer.PLAYER_1);
+
+        GridDTO gridPlayer2 = persistenceGameService.getGrid(idGame, IdPlayer.PLAYER_2);
+        List<BoatDTO> boatsPlayer2 = persistenceGameService.getBoats(idGame, IdPlayer.PLAYER_2);
+
+        playerCommunicationService.diffuseGameState(game, gridPlayer1, boatsPlayer1, gridPlayer2, boatsPlayer2);
+
     }
 
     public void diffuseEndGameScore(String idGame, IdPlayer winner, IdPlayer looser) {
         EndGameResultDTO endGameResult = new EndGameResultDTO();
         endGameResult.setIdPlayerWin(winner);
         endGameResult.setIdPlayerLose(looser);
-        playerCommunicationService.diffuseEndGame(idGame, endGameResult);
+        playerCommunicationService.endGameEvent(idGame, endGameResult);
     }
 
 
@@ -156,12 +174,11 @@ public class GameEngineServiceImpl implements GameEngineService {
 
     private void revealCell(String idGame, IdPlayer idPlayerAttacker, IdPlayer idPlayerTargeted, CoordinateDTO coordinateTargeted) {
 
+        persistenceGameService.revealCell(idGame, idPlayerTargeted, coordinateTargeted);
+        persistenceGameService.updateStateBoats(idGame, idPlayerTargeted);
+        persistenceGameService.revealCellsNextToDestroyedBoat(idGame, idPlayerTargeted);
 
-        persistenceService.revealCell(idGame, idPlayerTargeted, coordinateTargeted);
-        persistenceService.updateStateBoats(idGame, idPlayerTargeted);
-        persistenceService.revealCellsNextToDestroyedBoat(idGame, idPlayerTargeted);
-
-        diffuseInformationAboutPlayer(idGame, idPlayerTargeted);
+        diffuseGameState(idGame);
 
         if (isAllBoatDestroyed(idGame, idPlayerTargeted)) {
             diffuseEndGameScore(idGame, idPlayerAttacker, idPlayerTargeted);
@@ -170,14 +187,14 @@ public class GameEngineServiceImpl implements GameEngineService {
     }
 
     private boolean isAllBoatDestroyed(String idGame, IdPlayer idPlayer) {
-        return persistenceService.isAllBoatDestroyed(idGame, idPlayer);
+        return persistenceGameService.isAllBoatDestroyed(idGame, idPlayer);
     }
 
 
     private void iaPlay(String idGame, IdPlayer idIaPlayer, IdPlayer idPlayerTargeted) {
-        GridDTO grid = persistenceService.getGrid(idGame, idPlayerTargeted);
+        GridDTO grid = persistenceGameService.getGrid(idGame, idPlayerTargeted);
 
-        List<BoatType> boatsToFinds = persistenceService.getBoats(idGame, idPlayerTargeted).stream().filter(boat -> !boat.isDestroyed()).map(BoatDTO::getBoatType).toList();
+        List<BoatType> boatsToFinds = persistenceGameService.getBoats(idGame, idPlayerTargeted).stream().filter(boat -> !boat.isDestroyed()).map(BoatDTO::getBoatType).toList();
 
         CoordinateDTO coordinateToReveal = iaPlayerService.iaAttack(grid, boatsToFinds);
         revealCell(idGame, idIaPlayer, idPlayerTargeted, coordinateToReveal);

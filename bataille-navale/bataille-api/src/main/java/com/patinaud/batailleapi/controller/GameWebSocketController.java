@@ -28,9 +28,10 @@ public class GameWebSocketController {
         this.gameEngineService = gameEngineService;
     }
 
+
     @MessageMapping("/{idGame}/attack/{idPlayer}")
     public void processAttackFromPlayer(@DestinationVariable("idGame") String idGame, @DestinationVariable("idPlayer") String idPlayer, @Payload Coordinate coordinate) {
-        gameEngineService.playerAttack(idGame, idPlayer, CoordinateMapper.toDto(coordinate));
+        gameEngineService.playerAttack(idGame, IdPlayer.valueOf(idPlayer.toUpperCase()), CoordinateMapper.toDto(coordinate));
     }
 
 
@@ -39,7 +40,7 @@ public class GameWebSocketController {
 
         List<Boat> boats = gson.fromJson(boatsJson, new TypeToken<List<Boat>>() {
         }.getType());
-        gameEngineService.positionHumanPlayerBoat(idGame, IdPlayer.PLAYER_1, BoatMapper.toDtos(boats));
+        gameEngineService.positionPlayerBoats(idGame, IdPlayer.valueOf(idPlayer.toUpperCase()), BoatMapper.toDtos(boats));
     }
 
 

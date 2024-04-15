@@ -1,23 +1,18 @@
 package com.patinaud.bataillecommunication.mapper;
 
-import com.patinaud.bataillecommunication.responsedata.Cell;
-import com.patinaud.bataillecommunication.responsedata.PlayerCells;
+import com.patinaud.bataillecommunication.response.Cell;
 import com.patinaud.bataillemodel.constants.CellContent;
-import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.CellDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerCellsMapper {
-    private PlayerCellsMapper() {
+public class CellsMapper {
+    private CellsMapper() {
         throw new IllegalStateException("Utility class");
     }
 
-    public static PlayerCells fromDtosToResponses(IdPlayer idplayer, List<CellDTO> dtoCells) {
-        PlayerCells playerCells = new PlayerCells();
-
-        playerCells.setIdPlayer(idplayer);
+    public static ArrayList<Cell> fromDtosToResponses(List<CellDTO> dtoCells) {
 
         ArrayList<Cell> cells = new ArrayList<>();
         for (int i = 0; i < dtoCells.size(); i++) {
@@ -31,9 +26,7 @@ public class PlayerCellsMapper {
             cells.add(cell);
         }
 
-        playerCells.setCells(cells);
-
-        return playerCells;
+        return cells;
     }
 
 

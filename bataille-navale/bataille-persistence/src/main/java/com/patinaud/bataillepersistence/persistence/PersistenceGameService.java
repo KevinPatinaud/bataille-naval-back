@@ -1,13 +1,21 @@
 package com.patinaud.bataillepersistence.persistence;
 
 
+import com.patinaud.bataillemodel.constants.GameMode;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
 
 import java.util.List;
 
-public interface PersistenceService {
+public interface PersistenceGameService {
 
+    IdPlayer getIdPlayerTurn(String idGame);
+
+    void updateIdPlayerTurn(String idGame, IdPlayer idPlayerTurn);
+
+    GameMode getGameMode(String idGame);
+
+    GameDTO getGame(String idGame);
 
     void saveGrid(String idGame, IdPlayer idPlayer, GridDTO grid);
 
@@ -33,7 +41,4 @@ public interface PersistenceService {
 
     void revealCellsNextToDestroyedBoat(String idGame, IdPlayer idPlayer);
 
-    boolean userExistByEmail(String email);
-
-    UserDTO registerUser(UserDTO user);
 }

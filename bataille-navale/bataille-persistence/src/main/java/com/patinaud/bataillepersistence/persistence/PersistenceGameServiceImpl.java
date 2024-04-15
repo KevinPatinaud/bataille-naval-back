@@ -1,14 +1,18 @@
 package com.patinaud.bataillepersistence.persistence;
 
 
+import com.patinaud.bataillemodel.constants.GameMode;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
-import com.patinaud.bataillepersistence.dao.*;
+import com.patinaud.bataillepersistence.dao.BoatRepository;
+import com.patinaud.bataillepersistence.dao.CellRepository;
+import com.patinaud.bataillepersistence.dao.GameRepository;
+import com.patinaud.bataillepersistence.dao.PlayerRepository;
 import com.patinaud.bataillepersistence.entity.Boat;
 import com.patinaud.bataillepersistence.entity.Cell;
 import com.patinaud.bataillepersistence.entity.Player;
-import com.patinaud.bataillepersistence.entity.User;
 import com.patinaud.bataillepersistence.mapper.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class PersistenceServiceImpl implements PersistenceService {
+public class PersistenceGameServiceImpl implements PersistenceGameService {
 
     GameRepository gameRepository;
 
@@ -26,16 +30,38 @@ public class PersistenceServiceImpl implements PersistenceService {
 
     BoatRepository boatRepository;
 
-    UserRepository userRepository;
-
     @Autowired
-    public PersistenceServiceImpl(GameRepository gameRepository, PlayerRepository playerRepository, CellRepository cellRepository, BoatRepository boatRepository, UserRepository userRepository) {
+    public PersistenceGameServiceImpl(GameRepository gameRepository, PlayerRepository playerRepository, CellRepository cellRepository, BoatRepository boatRepository) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.cellRepository = cellRepository;
         this.boatRepository = boatRepository;
-        this.userRepository = userRepository;
     }
+
+    public IdPlayer getIdPlayerTurn(String idGame) {
+        return gameRepository.findById(idGame).get().getIdPlayerTurn();
+    }
+
+    @Transactional
+    public void updateIdPlayerTurn(String idGame, IdPlayer idPlayerTurn) {
+        try {
+            gameRepository.updateIdPlayerTurn(idGame, idPlayerTurn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    public GameMode getGameMode(String idGame) {
+        return gameRepository.findById(idGame).get().getMode();
+    }
+
+    @Override
+    public GameDTO getGame(String idGame) {
+        return GameMapper.toDto(gameRepository.findById(idGame).get());
+    }
+
 
     public boolean isGameExist(String idGame) {
         return gameRepository.findById(idGame).isPresent();
@@ -168,18 +194,6 @@ public class PersistenceServiceImpl implements PersistenceService {
     @Override
     public boolean isAllBoatDestroyed(String idGame, IdPlayer idPlayer) {
         return boatRepository.findBoatsByDestroyedState(idGame, idPlayer, false).isEmpty();
-    }
-
-
-    @Override
-    public boolean userExistByEmail(String email) {
-        return userRepository.findByEmail(email).isPresent();
-    }
-
-    @Override
-    public UserDTO registerUser(UserDTO user) {
-        User userSaved = userRepository.save(UserMapper.toEntity(user));
-        return UserMapper.toDto(userSaved);
     }
 
 

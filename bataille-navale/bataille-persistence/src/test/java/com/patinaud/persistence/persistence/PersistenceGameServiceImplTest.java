@@ -9,7 +9,7 @@ import com.patinaud.bataillepersistence.dao.GameRepository;
 import com.patinaud.bataillepersistence.dao.PlayerRepository;
 import com.patinaud.bataillepersistence.entity.Boat;
 import com.patinaud.bataillepersistence.entity.Cell;
-import com.patinaud.bataillepersistence.persistence.PersistenceServiceImpl;
+import com.patinaud.bataillepersistence.persistence.PersistenceGameServiceImpl;
 import com.patinaud.persistence.config.TestDatabaseConfiguration;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
@@ -27,10 +27,10 @@ import java.util.List;
 @ContextConfiguration(classes = {TestDatabaseConfiguration.class})
 @DirtiesContext
 @Transactional
-class PersistenceServiceImplTest {
+class PersistenceGameServiceImplTest {
 
     @Autowired
-    PersistenceServiceImpl persistenceServiceImpl;
+    PersistenceGameServiceImpl persistenceServiceImpl;
 
 
     @Autowired

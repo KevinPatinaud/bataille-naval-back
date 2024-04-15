@@ -21,16 +21,6 @@ public class Player {
     @Column(name = "is_ia")
     private boolean isIA;
 
-
-    public Long getUid() {
-        return uid;
-    }
-
-
-    public IdPlayer getIdPlayer() {
-        return idPlayer;
-    }
-
     public void setIdPlayer(IdPlayer idPlayer) {
         this.idPlayer = idPlayer;
     }
@@ -43,10 +33,6 @@ public class Player {
         this.game = game;
     }
 
-
-    public boolean isIA() {
-        return isIA;
-    }
 
     public void setIA(boolean isIa) {
         this.isIA = isIa;

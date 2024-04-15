@@ -6,7 +6,7 @@ import com.patinaud.bataillemodel.constants.BoatType;
 import com.patinaud.bataillemodel.constants.GameMode;
 import com.patinaud.bataillemodel.constants.IdPlayer;
 import com.patinaud.bataillemodel.dto.*;
-import com.patinaud.bataillepersistence.persistence.PersistenceService;
+import com.patinaud.bataillepersistence.persistence.PersistenceGameService;
 import com.patinaud.batailleplayer.ia.IaPlayerService;
 import com.patinaud.batailleservice.service.GridService;
 import org.junit.jupiter.api.Test;
@@ -27,6 +27,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfiguration.class})
@@ -35,7 +36,7 @@ import static org.mockito.ArgumentMatchers.eq;
 public class GameEngineServiceImplTest {
 
     @MockBean
-    PersistenceService persistenceServiceMock;
+    PersistenceGameService persistenceGameServiceMock;
     @MockBean
     IaPlayerService iaPlayerServiceMock;
     @MockBean
@@ -59,10 +60,10 @@ public class GameEngineServiceImplTest {
 
     @Test
     public void generateNewGameTest() throws Exception {
-        Mockito.doNothing().when(persistenceServiceMock).saveGame(any());
-        Mockito.doNothing().when(persistenceServiceMock).savePlayer(any());
-        Mockito.doNothing().when(persistenceServiceMock).saveGrid(any(), any(), any());
-        Mockito.doNothing().when(persistenceServiceMock).setBoatPosition(any(), any(), any());
+        Mockito.doNothing().when(persistenceGameServiceMock).saveGame(any());
+        Mockito.doNothing().when(persistenceGameServiceMock).savePlayer(any());
+        Mockito.doNothing().when(persistenceGameServiceMock).saveGrid(any(), any(), any());
+        Mockito.doNothing().when(persistenceGameServiceMock).setBoatPosition(any(), any(), any());
 
 
         Mockito.when(gridServiceMock.generateEmptyGrid(Mockito.anyInt(), Mockito.anyInt())).thenReturn(new GridDTO());
@@ -71,25 +72,54 @@ public class GameEngineServiceImplTest {
 
         assertFalse(gameDTO.getId().isEmpty());
 
-        Mockito.verify(persistenceServiceMock).saveGame(argumentCaptorGameDTO.capture());
+        Mockito.verify(persistenceGameServiceMock).saveGame(argumentCaptorGameDTO.capture());
         assertEquals(gameDTO.getId(), argumentCaptorGameDTO.getValue().getId());
 
-        Mockito.verify(persistenceServiceMock, Mockito.times(2)).savePlayer(argumentCaptorPlayerDTO.capture());
+        Mockito.verify(persistenceGameServiceMock, Mockito.times(2)).savePlayer(argumentCaptorPlayerDTO.capture());
         assertEquals(IdPlayer.PLAYER_1, argumentCaptorPlayerDTO.getAllValues().get(0).getIdPlayer());
         assertEquals(IdPlayer.PLAYER_2, argumentCaptorPlayerDTO.getAllValues().get(1).getIdPlayer());
 
     }
 
+    @Test
+    void isValidIdGame() {
+        Mockito.when(persistenceGameServiceMock.isGameExist(any())).thenReturn(true);
+        assertTrue(gameEngineService.isValidIdGame("QUARTIER-MAITRE_3160"));
+    }
+
+    @Test
+    void isNotAValidIdGameNotInDB() {
+        Mockito.when(persistenceGameServiceMock.isGameExist(any())).thenReturn(false);
+        assertFalse(gameEngineService.isValidIdGame("TORPILLE_4163"));
+    }
+
+    @Test
+    void isNotAValidIdGameOversize() {
+        Mockito.when(persistenceGameServiceMock.isGameExist(any())).thenReturn(true);
+        assertFalse(gameEngineService.isValidIdGame("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA_3160"));
+    }
+
+    @Test
+    void isNotAValidIdGameNull() {
+        Mockito.when(persistenceGameServiceMock.isGameExist(any())).thenReturn(true);
+        assertFalse(gameEngineService.isValidIdGame(null));
+    }
+
+    @Test
+    void isNotAValidIdGameWrongFormat() {
+        Mockito.when(persistenceGameServiceMock.isGameExist(any())).thenReturn(true);
+        assertFalse(gameEngineService.isValidIdGame("ABCD_123_456"));
+    }
 
     @Test
     void positionHumanPlayerBoatTest() {
-        Mockito.doNothing().when(persistenceServiceMock).setBoatPosition(any(), any(), any());
+        Mockito.doNothing().when(persistenceGameServiceMock).setBoatPosition(any(), any(), any());
 
         List<BoatDTO> boats = new ArrayList<>();
 
-        gameEngineService.positionHumanPlayerBoat("ABC", IdPlayer.PLAYER_1, boats);
+        gameEngineService.positionPlayerBoats("ABC", IdPlayer.PLAYER_1, boats);
 
-        Mockito.verify(persistenceServiceMock).setBoatPosition("ABC", IdPlayer.PLAYER_1, boats);
+        Mockito.verify(persistenceGameServiceMock).setBoatPosition("ABC", IdPlayer.PLAYER_1, boats);
 
     }
 
@@ -115,17 +145,18 @@ public class GameEngineServiceImplTest {
     }
 
     @Test
-    void playerAttackTest() {
-        Mockito.doNothing().when(persistenceServiceMock).revealCell(any(), any(), any());
-        Mockito.doNothing().when(persistenceServiceMock).updateStateBoats(any(), any());
-        Mockito.doNothing().when(persistenceServiceMock).revealCellsNextToDestroyedBoat(any(), any());
-        Mockito.when(persistenceServiceMock.getBoats(any(), Mockito.eq(IdPlayer.PLAYER_1))).thenReturn(generateListBoatDTO());
+    void playerAttackSoloWithIAResponseTest() {
+        Mockito.doNothing().when(persistenceGameServiceMock).revealCell(any(), any(), any());
+        Mockito.doNothing().when(persistenceGameServiceMock).updateStateBoats(any(), any());
+        Mockito.doNothing().when(persistenceGameServiceMock).revealCellsNextToDestroyedBoat(any(), any());
+        Mockito.when(persistenceGameServiceMock.getGameMode(any())).thenReturn(GameMode.SOLO);
+        Mockito.when(persistenceGameServiceMock.getBoats(any(), Mockito.eq(IdPlayer.PLAYER_1))).thenReturn(generateListBoatDTO());
 
         CoordinateDTO coordinateDTO = new CoordinateDTO(1, 2);
 
-        gameEngineService.playerAttack("ID_GAME", IdPlayer.PLAYER_1.getValue(), coordinateDTO);
+        gameEngineService.playerAttack("ID_GAME", IdPlayer.PLAYER_1, coordinateDTO);
 
-        Mockito.verify(persistenceServiceMock).revealCell(eq("ID_GAME"), eq(IdPlayer.PLAYER_2), argumentCaptorCoordinateDTO.capture());
+        Mockito.verify(persistenceGameServiceMock).revealCell(eq("ID_GAME"), eq(IdPlayer.PLAYER_2), argumentCaptorCoordinateDTO.capture());
         assertEquals(coordinateDTO, argumentCaptorCoordinateDTO.getValue());
 
         Mockito.verify(iaPlayerServiceMock).iaAttack(any(), argumentCaptorListBoatType.capture());
@@ -135,37 +166,55 @@ public class GameEngineServiceImplTest {
     }
 
     @Test
-    void playerAttackWithWrongIdPlayerTest() {
+    void playerJoinGameTest() {
+        Mockito.when(persistenceGameServiceMock.isGameExist(any())).thenReturn(true);
+        boolean result = gameEngineService.playerJoinGame("TORPILLE_9595");
+        Mockito.verify(playerCommunicationServiceMock).playerJoinTheGameEvent(eq("TORPILLE_9595"), eq(IdPlayer.PLAYER_2));
+        assertTrue(result);
+    }
+
+    @Test
+    void playerJoinGameWrongIdTest() {
+        Mockito.when(persistenceGameServiceMock.isGameExist(any())).thenReturn(false);
+        boolean result = gameEngineService.playerJoinGame("TORPILLE_9595");
+        assertFalse(result);
+    }
+
+    @Test
+    void playerAttackMultiTest() {
+        Mockito.doNothing().when(persistenceGameServiceMock).revealCell(any(), any(), any());
+        Mockito.doNothing().when(persistenceGameServiceMock).updateStateBoats(any(), any());
+        Mockito.doNothing().when(persistenceGameServiceMock).revealCellsNextToDestroyedBoat(any(), any());
+        Mockito.when(persistenceGameServiceMock.getGameMode(any())).thenReturn(GameMode.MULTI);
+        Mockito.when(persistenceGameServiceMock.getBoats(any(), Mockito.eq(IdPlayer.PLAYER_1))).thenReturn(generateListBoatDTO());
 
         CoordinateDTO coordinateDTO = new CoordinateDTO(1, 2);
 
+        gameEngineService.playerAttack("ID_GAME", IdPlayer.PLAYER_1, coordinateDTO);
 
-        IllegalArgumentException thrown = assertThrows(
-                IllegalArgumentException.class,
-                () -> gameEngineService.playerAttack("ID_GAME", "Wrong id player", coordinateDTO)
-        );
+        Mockito.verify(persistenceGameServiceMock).revealCell(eq("ID_GAME"), eq(IdPlayer.PLAYER_2), argumentCaptorCoordinateDTO.capture());
+        assertEquals(coordinateDTO, argumentCaptorCoordinateDTO.getValue());
 
-        assertEquals("No enum constant com.patinaud.bataillemodel.constants.IdPlayer.WRONG ID PLAYER", thrown.getMessage());
-
+        Mockito.verify(iaPlayerServiceMock, never()).iaAttack(any(), any());
     }
 
 
     @Test
     void playerAttackEndGameTest() {
 
-
-        Mockito.doNothing().when(persistenceServiceMock).revealCell(any(), any(), any());
-        Mockito.doNothing().when(persistenceServiceMock).updateStateBoats(any(), any());
-        Mockito.doNothing().when(persistenceServiceMock).revealCellsNextToDestroyedBoat(any(), any());
-        Mockito.when(persistenceServiceMock.isAllBoatDestroyed(any(), eq(IdPlayer.PLAYER_1))).thenReturn(true);
+        Mockito.doNothing().when(persistenceGameServiceMock).revealCell(any(), any(), any());
+        Mockito.doNothing().when(persistenceGameServiceMock).updateStateBoats(any(), any());
+        Mockito.doNothing().when(persistenceGameServiceMock).revealCellsNextToDestroyedBoat(any(), any());
+        Mockito.when(persistenceGameServiceMock.getGameMode(any())).thenReturn(GameMode.SOLO);
+        Mockito.when(persistenceGameServiceMock.isAllBoatDestroyed(any(), eq(IdPlayer.PLAYER_1))).thenReturn(true);
 
 
         CoordinateDTO coordinateDTO = new CoordinateDTO(1, 2);
 
-        gameEngineService.playerAttack("ID_GAME", IdPlayer.PLAYER_1.getValue(), coordinateDTO);
+        gameEngineService.playerAttack("ID_GAME", IdPlayer.PLAYER_1, coordinateDTO);
 
 
-        Mockito.verify(playerCommunicationServiceMock).diffuseEndGame(eq("ID_GAME"), argumentCaptorEndGameResultDTO.capture());
+        Mockito.verify(playerCommunicationServiceMock).endGameEvent(eq("ID_GAME"), argumentCaptorEndGameResultDTO.capture());
         assertEquals(IdPlayer.PLAYER_1, argumentCaptorEndGameResultDTO.getValue().getIdPlayerLose());
         assertEquals(IdPlayer.PLAYER_2, argumentCaptorEndGameResultDTO.getValue().getIdPlayerWin());
     }
